@@ -1,0 +1,26 @@
+{
+    "name": "alleyinteractive/composer-wordpress-autoload-tests",
+    "type": "project",
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "Alley Interactive",
+            "email": "info@alley.co"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "alleyinteractive/composer-wordpress-autoloader": "*"
+    },
+    "autoload": {
+        "wordpress": {
+            "ComposerWordPressAutoloaderTests\\": "src/"
+        }
+    },
+    "repositories": {
+        "local": {
+            "type": "path",
+            "url": "../../"
+        }
+    }
+}
