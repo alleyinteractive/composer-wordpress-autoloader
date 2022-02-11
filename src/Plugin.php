@@ -179,7 +179,7 @@ require_once __DIR__ . '/autoload.php';
 AUTOLOAD;
         }
 
-        $contents .= "\n\n";
+        $contents .= "\n";
         $contents .= sprintf(
             '\ComposerWordPressAutoloader\AutoloadFactory::registerFromRules(%s, $baseDir);',
             var_export($rules, true),
