@@ -90,7 +90,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $injecting = !empty($this->composer->getPackage()->getExtra()['wordpress-autoloader']['inject']);
 
         $autoloaderFile = $this->getAutoloaderFileContents(
-            $this->collectAutoloaderRules($event),
+            array_merge_recursive(
+                $this->collectAutoloaderRules($event),
+                $this->collectExtraAutoloaderRules($event),
+            ),
             $injecting,
         );
 
@@ -145,6 +148,32 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $generator->setDevMode($event->isDevMode());
 
         return $generator->parseAutoloads(
+            $generator->buildPackageMap(
+                $this->composer->getInstallationManager(),
+                $this->composer->getPackage(),
+                $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages(),
+            ),
+            $this->composer->getPackage(),
+            !$event->isDevMode()
+        )['wordpress'] ?? [];
+    }
+
+    /**
+     * Collect the autoloader rules registered via 'extra' to generate for.
+     *
+     * @param Event $event
+     * @return array<string, string>
+     */
+    protected function collectExtraAutoloaderRules(Event $event): array
+    {
+        $generator = new AutoloadGenerator(
+            $this->composer->getEventDispatcher(),
+            $this->io,
+        );
+
+        $generator->setDevMode($event->isDevMode());
+
+        return $generator->parseExtraAutoloads(
             $generator->buildPackageMap(
                 $this->composer->getInstallationManager(),
                 $this->composer->getPackage(),

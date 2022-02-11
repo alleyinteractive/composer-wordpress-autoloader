@@ -22,6 +22,16 @@
             "ComposerWordPressAutoloaderTests\\Tests\\": "tests/"
         }
     },
+    "extra": {
+        "wordpress-autoload": {
+            "autoload": {
+                "ComposerWordPressAutoloaderTests\\Extra\\": "extra/"
+            },
+            "autoload-dev": {
+                "ComposerWordPressAutoloaderTests\\Extra\\Tests\\": "tests-extra/"
+            }
+        }
+    },
     "repositories": {
         "local": {
             "type": "path",
