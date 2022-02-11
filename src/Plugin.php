@@ -168,14 +168,18 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $contents = "/* Composer WordPress Autoloader Injected */\n\n";
             $contents .= "\n\n";
         } else {
-            $contents .= "<?php\n\n";
-            $contents .= "/* Composer WordPress Autoloader */\n\n";
-            $contents .= 'require_once __DIR__ . \'/autoload.php\';';
-            $contents .= "\n\n";
+            $contents = <<<AUTOLOAD
+<?php
+
+/* Composer WordPress Autoloader */
+require_once __DIR__ . '/autoload.php';
+
+\$baseDir = dirname(__DIR__);
+
+AUTOLOAD;
         }
 
-        $contents .= '$baseDir = dirname(__DIR__);' . "\n\n";
-
+        $contents .= "\n\n";
         $contents .= sprintf(
             '\ComposerWordPressAutoloader\AutoloadFactory::registerFromRules(%s, $baseDir);',
             var_export($rules, true),
