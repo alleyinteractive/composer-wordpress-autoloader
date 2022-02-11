@@ -38,6 +38,28 @@ Once added a `vendor/wordpress-autoload.php` file will be created. You can load
 that in place of `vendor/autoload.php` (it will load that for you) to load you
 WordPress and Composer dependencies.
 
+### Use Inside Packages Published to Packagist
+
+Packages published to Packagist are required to be valid and have a
+`composer.json` that passed a `composer validate`. Composer does not consider
+`wordpress` to be a valid value inside of the `autoload` or `autoload-dev`
+property. To allow packages to register autoloading in a valid format, you can
+use the following format:
+
+```json
+{
+  "extra": {
+    "wordpress-autoloader": {
+      "autoload": {
+        "My_Plugin_Namespace\\": "src/",
+      },
+      "autoload-dev": {
+        "My_Plugin_Namespace\\Tests\\": "tests/",
+      }
+    }
+  }
+}
+```
 
 ### Automatically Injecting WordPress Autoloader
 

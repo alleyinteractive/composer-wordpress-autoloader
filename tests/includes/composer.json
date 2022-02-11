@@ -23,7 +23,7 @@
         }
     },
     "extra": {
-        "wordpress-autoload": {
+        "wordpress-autoloader": {
             "autoload": {
                 "ComposerWordPressAutoloaderTests\\Extra\\": "extra/"
             },

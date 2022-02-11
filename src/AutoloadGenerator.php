@@ -78,14 +78,14 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
         foreach ($packageMap as $item) {
             [$package, $installPath] = $item;
             $autoload = [
-              'wordpress' => $package->getExtra()['wordpress-autoload']['autoload'] ?? [],
+              'wordpress' => $package->getExtra()['wordpress-autoloader']['autoload'] ?? [],
             ];
 
             if ($this->devMode && $package === $rootPackage) {
                 $autoload = array_merge_recursive(
                   $autoload,
                   [
-                    'wordpress' => $package->getExtra()['wordpress-autoload']['autoload-dev'] ?? [],
+                    'wordpress' => $package->getExtra()['wordpress-autoloader']['autoload-dev'] ?? [],
                   ],
                 );
             }
