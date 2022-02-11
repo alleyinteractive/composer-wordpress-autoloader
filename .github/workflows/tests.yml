@@ -38,6 +38,9 @@ jobs:
           cd tests/includes
           composer install
 
+      - name: Composer Validate
+        run: composer validate --strict
+
       - name: Execute tests
         run: |
           composer run lint

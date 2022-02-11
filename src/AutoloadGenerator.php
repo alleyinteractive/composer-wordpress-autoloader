@@ -83,10 +83,10 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
 
             if ($this->devMode && $package === $rootPackage) {
                 $autoload = array_merge_recursive(
-                  $autoload,
-                  [
+                    $autoload,
+                    [
                     'wordpress' => $package->getExtra()['wordpress-autoloader']['autoload-dev'] ?? [],
-                  ],
+                    ],
                 );
             }
 
@@ -96,12 +96,12 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
             }
 
             if (null !== $package->getTargetDir() && $package !== $rootPackage) {
-                $installPath = substr($installPath, 0, -strlen('/'.$package->getTargetDir()));
+                $installPath = substr($installPath, 0, -strlen('/' . $package->getTargetDir()));
             }
 
             foreach ($autoload[$type] as $namespace => $paths) {
                 foreach ((array) $paths as $path) {
-                    $relativePath = empty($installPath) ? (empty($path) ? '.' : $path) : $installPath.'/'.$path;
+                    $relativePath = empty($installPath) ? (empty($path) ? '.' : $path) : $installPath . '/' . $path;
                     $autoloads[$namespace][] = $relativePath;
                 }
             }
