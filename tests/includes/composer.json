@@ -17,6 +17,11 @@
             "ComposerWordPressAutoloaderTests\\": "src/"
         }
     },
+    "autoload-dev": {
+        "wordpress": {
+            "ComposerWordPressAutoloaderTests\\Tests\\": "tests/"
+        }
+    },
     "repositories": {
         "local": {
             "type": "path",

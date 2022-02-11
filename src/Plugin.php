@@ -142,6 +142,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->io,
         );
 
+        $generator->setDevMode($event->isDevMode());
+
         return $generator->parseAutoloads(
             $generator->buildPackageMap(
                 $this->composer->getInstallationManager(),

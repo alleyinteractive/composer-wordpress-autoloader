@@ -3,6 +3,7 @@
 namespace ComposerWordPressAutoloader\Tests;
 
 use ComposerWordPressAutoloaderTests\Example_Class;
+use ComposerWordPressAutoloaderTests\Tests\Example_Test_File;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -21,14 +22,17 @@ class AutoloaderTest extends TestCase
     {
         // Ensure it is undefined until we load it.
         $this->assertFalse(class_exists(Example_Class::class));
+        $this->assertFalse(class_exists(Example_Test_File::class));
 
         require_once __DIR__ . '/includes/vendor/wordpress-autoload.php';
+
         $this->assertTrue(class_exists(Example_Class::class));
+        $this->assertTrue(class_exists(Example_Test_File::class));
     }
 
     public function testAutoloaderFile()
     {
-        $expected = 'b35209955836de1ececdd0285c28578a';
+        $expected = 'e5e6447e53ba4d7ab4a2f5e92326d609';
         $actual = md5(file_get_contents(__DIR__ . '/includes/vendor/wordpress-autoload.php'));
 
         $this->assertEquals($expected, $actual);
