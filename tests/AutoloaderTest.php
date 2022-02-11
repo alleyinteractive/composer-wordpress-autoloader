@@ -25,4 +25,12 @@ class AutoloaderTest extends TestCase
         require_once __DIR__ . '/includes/vendor/wordpress-autoload.php';
         $this->assertTrue(class_exists(Example_Class::class));
     }
+
+    public function testAutoloaderFile()
+    {
+        $expected = 'b35209955836de1ececdd0285c28578a';
+        $actual = md5(file_get_contents(__DIR__ . '/includes/vendor/wordpress-autoload.php'));
+
+        $this->assertEquals($expected, $actual);
+    }
 }
