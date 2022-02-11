@@ -174,11 +174,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $contents .= "\n\n";
         }
 
+        $contents .= '$baseDir = dirname(__DIR__);' . "\n\n";
+
         $contents .= sprintf(
-            '\ComposerWordPressAutoloader\AutoloadFactory::registerFromRules(%s, \'%s\');',
+            '\ComposerWordPressAutoloader\AutoloadFactory::registerFromRules(%s, $baseDir);',
             var_export($rules, true),
-            // The base directory for the project.
-            dirname($this->composer->getConfig()->get('vendor-dir')),
         );
 
         $contents .= "\n\n";
