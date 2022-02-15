@@ -8,7 +8,7 @@ documented in this file.
 ## [0.2.0]
 
 - Updates autoloader to use non-hard-coded paths.
-- Adds support for dependencies to autoload files as well, fixes #3.
+- Adds support for dependencies to autoload files as well, fixes https://github.com/alleyinteractive/composer-wordpress-autoloader/issues/3.
 
 ## 0.1.0
 
