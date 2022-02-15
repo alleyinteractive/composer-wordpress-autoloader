@@ -12,7 +12,7 @@ class AutoloaderTest extends TestCase
         parent::setUp();
 
         if (!file_exists(__DIR__ . '/fixtures/root/vendor/wordpress-autoload.php')) {
-            throw new RuntimeException('"composer install" needs to be run in tests/includes');
+            throw new RuntimeException('"composer install" needs to be run in tests/fixtures/root');
         }
     }
 

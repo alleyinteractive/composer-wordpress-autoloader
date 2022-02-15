@@ -35,7 +35,7 @@ jobs:
 
       - name: Install test dependencies
         run: |
-          cd tests/includes
+          cd tests/fixtures/root
           composer install
 
       - name: Composer Validate
