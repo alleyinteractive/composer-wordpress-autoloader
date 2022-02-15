@@ -8,6 +8,8 @@ Coding
 Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/php/)
 using
 [alleyinteractive/wordpress-autoloader](https://github.com/alleyinteractive/wordpress-autoloader).
+Will load the autoloaded classes defined in your package and all autoloaded
+classes in your dependencies.
 
 ## Installation
 
