@@ -17,18 +17,10 @@
             "ComposerWordPressAutoloaderTests_Dependency\\": "src/"
         }
     },
-    "autoload-dev": {
-        "wordpress": {
-            "ComposerWordPressAutoloaderTests_Dependency\\Tests\\": "tests/"
-        }
-    },
     "extra": {
         "wordpress-autoloader": {
             "autoload": {
                 "ComposerWordPressAutoloaderTests_Dependency\\Extra\\": "extra/"
-            },
-            "autoload-dev": {
-                "ComposerWordPressAutoloaderTests_Dependency\\Extra\\Tests\\": "tests/"
             }
         }
     },

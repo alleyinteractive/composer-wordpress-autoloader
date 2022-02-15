@@ -41,27 +41,23 @@ class AutoloaderTest extends TestCase
         require_once __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php';
 
         $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests_Dependency\Example_Class::class));
-        // $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests_Dependency\Tests\Example_Test_File::class));
     }
 
     public function testAutoloadedClassDependencyExtra()
     {
+        require_once __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php';
+
         $this->assertTrue(
             class_exists(\ComposerWordPressAutoloaderTests_Dependency\Extra\Example_Class::class),
             \ComposerWordPressAutoloaderTests_Dependency\Extra\Example_Class::class . ' class does not exist',
         );
-
-        $this->assertTrue(
-            class_exists(\ComposerWordPressAutoloaderTests_Dependency\Extra\Tests\Example_Test_File::class),
-            \ComposerWordPressAutoloaderTests_Dependency\Extra\Tests\Example_Test_File::class . ' class does not',
-        );
     }
 
-    // public function testAutoloaderFile()
-    // {
-    //     $expected = 'bb6fffa420b29861d981a264238916e4';
-    //     $actual = md5(file_get_contents(__DIR__ . '/fixtures/root/vendor/wordpress-autoload.php'));
+    public function testAutoloaderFile()
+    {
+        $expected = 'fe5f9e576c96f9a23e1e72c79ae46564';
+        $actual = md5(file_get_contents(__DIR__ . '/fixtures/root/vendor/wordpress-autoload.php'));
 
-    //     $this->assertEquals($expected, $actual);
-    // }
+        $this->assertEquals($expected, $actual);
+    }
 }

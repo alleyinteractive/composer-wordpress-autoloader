@@ -15,6 +15,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     protected Composer $composer;
     protected IOInterface $io;
     protected Filesystem $filesystem;
+    protected AutoloadGenerator $generator;
 
     /**
      * Apply plugin modifications to Composer
@@ -86,20 +87,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $this->filesystem->ensureDirectoryExists($this->composer->getConfig()->get('vendor-dir'));
 
+        $this->generator = new AutoloadGenerator(
+            $this->composer,
+            $this->io,
+        );
+
         // Determine if we should inject our autoloader into the vendor/autoload.php from Composer.
         $injecting = !empty($this->composer->getPackage()->getExtra()['wordpress-autoloader']['inject']);
 
-        $autoloaderFile = $this->getAutoloaderFileContents(
-            array_merge_recursive(
-                $this->collectAutoloaderRules($event),
-                $this->collectExtraAutoloaderRules($event),
-            ),
-            $injecting,
-        );
-
-        var_dump('autoloaderFile', $autoloaderFile);exit;
-
-        // todo: array unique.
+        $autoloaderFile = $this->generator->generate($injecting, $event->isDevMode());
 
         // Inject the autoloader into the existing autoloader.
         if ($injecting) {
@@ -136,65 +132,65 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         return "{$vendorDir}/wordpress-autoload.php";
     }
 
-    /**
-     * Collect the autoloader rules to generator for.
-     *
-     * @param Event $event
-     * @return array<string, string>
-     */
-    protected function collectAutoloaderRules(Event $event): array
-    {
-        $generator = new AutoloadGenerator(
-            $this->composer->getEventDispatcher(),
-            $this->io,
-        );
+    // /**
+    //  * Collect the autoloader rules to generator for.
+    //  *
+    //  * @param Event $event
+    //  * @return array<string, string>
+    //  */
+    // protected function collectAutoloaderRules(Event $event): array
+    // {
+    //     $generator = new AutoloadGenerator(
+    //         $this->composer->getEventDispatcher(),
+    //         $this->io,
+    //     );
 
-        $generator->setDevMode($event->isDevMode());
+    //     $generator->setDevMode($event->isDevMode());
 
-        $autoloaders = $generator->parseAutoloads(
-            $generator->buildPackageMap(
-                $this->composer->getInstallationManager(),
-                $this->composer->getPackage(),
-                $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages(),
-            ),
-            $this->composer->getPackage(),
-            !$event->isDevMode()
-        )['wordpress'] ?? [];
+    //     $autoloaders = $generator->parseAutoloads(
+    //         $generator->buildPackageMap(
+    //             $this->composer->getInstallationManager(),
+    //             $this->composer->getPackage(),
+    //             $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages(),
+    //         ),
+    //         $this->composer->getPackage(),
+    //         !$event->isDevMode()
+    //     )['wordpress'] ?? [];
 
-        return $autoloaders;
+    //     return $autoloaders;
 
-        return $this->normalizeAutoloadingPaths($autoloaders);
-    }
+    //     return $this->normalizeAutoloadingPaths($autoloaders);
+    // }
 
-    /**
-     * Collect the autoloader rules registered via 'extra' to generate for.
-     *
-     * @param Event $event
-     * @return array<string, string>
-     */
-    protected function collectExtraAutoloaderRules(Event $event): array
-    {
-        $generator = new AutoloadGenerator(
-            $this->composer->getEventDispatcher(),
-            $this->io,
-        );
+    // /**
+    //  * Collect the autoloader rules registered via 'extra' to generate for.
+    //  *
+    //  * @param Event $event
+    //  * @return array<string, string>
+    //  */
+    // protected function collectExtraAutoloaderRules(Event $event): array
+    // {
+    //     $generator = new AutoloadGenerator(
+    //         $this->composer->getEventDispatcher(),
+    //         $this->io,
+    //     );
 
-        $generator->setDevMode($event->isDevMode());
+    //     $generator->setDevMode($event->isDevMode());
 
-        $autoloaders = $generator->parseExtraAutoloads(
-            $generator->buildPackageMap(
-                $this->composer->getInstallationManager(),
-                $this->composer->getPackage(),
-                $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages(),
-            ),
-            $this->composer->getPackage(),
-            !$event->isDevMode()
-        )['wordpress'] ?? [];
+    //     $autoloaders = $generator->parseExtraAutoloads(
+    //         $generator->buildPackageMap(
+    //             $this->composer->getInstallationManager(),
+    //             $this->composer->getPackage(),
+    //             $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages(),
+    //         ),
+    //         $this->composer->getPackage(),
+    //         !$event->isDevMode()
+    //     )['wordpress'] ?? [];
 
-        return $autoloaders;
+    //     return $autoloaders;
 
-        return $this->normalizeAutoloadingPaths($autoloaders);
-    }
+    //     return $this->normalizeAutoloadingPaths($autoloaders);
+    // }
 
     protected function normalizeAutoloadingPaths(array $autoloaders): array
     {
@@ -212,45 +208,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }, $paths);
         }, $autoloaders);
 
-        // var_dump($autoloaders);exit;
         return $autoloaders;
-    }
-
-    /**
-     * Generate the autoloader file given a set of rules.
-     *
-     * @param array<string, string> $rules Autoloader rules.
-     * @param string $beingInjected Flag if the autoloader is being injected.
-     * @return string
-     */
-    protected function getAutoloaderFileContents(array $rules, bool $beingInjected): string
-    {
-        $contents = '';
-
-        if ($beingInjected) {
-            $contents = "/* Composer WordPress Autoloader Injected */\n\n";
-            $contents .= "\n\n";
-        } else {
-            $contents = <<<AUTOLOAD
-<?php
-
-/* Composer WordPress Autoloader */
-require_once __DIR__ . '/autoload.php';
-
-\$baseDir = dirname(__DIR__);
-
-AUTOLOAD;
-        }
-
-        $contents .= "\n";
-        $contents .= sprintf(
-            '\ComposerWordPressAutoloader\AutoloadFactory::registerFromRules(%s, $baseDir);',
-            var_export($rules, true),
-        );
-
-        $contents .= "\n\n";
-
-        return $contents;
     }
 
     /**
