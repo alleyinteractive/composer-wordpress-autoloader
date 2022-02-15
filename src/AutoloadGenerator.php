@@ -34,9 +34,17 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
      */
     public function parseAutoloads(array $packageMap, PackageInterface $rootPackage, $filteredDevPackages = false)
     {
+        // foreach ($packageMap as $package)
+        // {
+        //     var_dump('package', get_class($package[0]), $package[0]->getName());
+        // }
+        // var_dump('packages============================');
+
         if ($filteredDevPackages) {
             $packageMap = $this->filterPackageMap($packageMap, $rootPackage);
         }
+
+        // var_dump('parseAutoloads', $this->parseAutoloadsType($packageMap, 'wordpress', $rootPackage),);exit;
 
         return [
           'wordpress' => $this->parseAutoloadsType($packageMap, 'wordpress', $rootPackage),
@@ -73,6 +81,7 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
      */
     protected function parseExtraAutoloadsType(array $packageMap, $type, RootPackageInterface $rootPackage)
     {
+        return [];
         $autoloads = [];
 
         foreach ($packageMap as $item) {
@@ -81,14 +90,14 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
               'wordpress' => $package->getExtra()['wordpress-autoloader']['autoload'] ?? [],
             ];
 
-            if ($this->devMode && $package === $rootPackage) {
-                $autoload = array_merge_recursive(
-                    $autoload,
-                    [
-                    'wordpress' => $package->getExtra()['wordpress-autoloader']['autoload-dev'] ?? [],
-                    ],
-                );
-            }
+            // if ($this->devMode && $package === $rootPackage) {
+            //     $autoload = array_merge_recursive(
+            //         $autoload,
+            //         [
+            //             'wordpress' => $package->getExtra()['wordpress-autoloader']['autoload-dev'] ?? [],
+            //         ],
+            //     );
+            // }
 
             // skip misconfigured packages
             if (!isset($autoload[$type]) || !is_array($autoload[$type])) {
@@ -99,10 +108,19 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
                 $installPath = substr($installPath, 0, -strlen('/' . $package->getTargetDir()));
             }
 
+            if ($package !== $rootPackage) {
+                $installPath = str_replace($rootPackage->getTargetDir(), '', $installPath);
+            }
+
+            if (!empty($autoload[$type])) {
+                var_dump('paths', $autoload[$type], $installPath, $rootPackage->getTargetDir());
+            }
+
             foreach ($autoload[$type] as $namespace => $paths) {
                 foreach ((array) $paths as $path) {
                     $relativePath = empty($installPath) ? (empty($path) ? '.' : $path) : $installPath . '/' . $path;
                     $autoloads[$namespace][] = $relativePath;
+                    // $autoloads[$namespace][] = $path;
                 }
             }
         }

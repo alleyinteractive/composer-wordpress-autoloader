@@ -11,7 +11,7 @@
     <file>.</file>
     <exclude-pattern>*/.github/*</exclude-pattern>
     <exclude-pattern>*/vendor/*</exclude-pattern>
-    <exclude-pattern>tests/includes/*</exclude-pattern>
+    <exclude-pattern>tests/fixtures/*</exclude-pattern>
 
     <rule ref="PSR12">
         <!-- Constant visibility can not be declared (yet) as the minimum supported PHP version is 5.3

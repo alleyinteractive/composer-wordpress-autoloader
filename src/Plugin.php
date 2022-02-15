@@ -97,6 +97,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $injecting,
         );
 
+        var_dump('autoloaderFile', $autoloaderFile);exit;
+
+        // todo: array unique.
+
         // Inject the autoloader into the existing autoloader.
         if ($injecting) {
             if (
@@ -147,7 +151,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
         $generator->setDevMode($event->isDevMode());
 
-        return $generator->parseAutoloads(
+        $autoloaders = $generator->parseAutoloads(
             $generator->buildPackageMap(
                 $this->composer->getInstallationManager(),
                 $this->composer->getPackage(),
@@ -156,6 +160,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->composer->getPackage(),
             !$event->isDevMode()
         )['wordpress'] ?? [];
+
+        return $autoloaders;
+
+        return $this->normalizeAutoloadingPaths($autoloaders);
     }
 
     /**
@@ -173,7 +181,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
         $generator->setDevMode($event->isDevMode());
 
-        return $generator->parseExtraAutoloads(
+        $autoloaders = $generator->parseExtraAutoloads(
             $generator->buildPackageMap(
                 $this->composer->getInstallationManager(),
                 $this->composer->getPackage(),
@@ -182,6 +190,30 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->composer->getPackage(),
             !$event->isDevMode()
         )['wordpress'] ?? [];
+
+        return $autoloaders;
+
+        return $this->normalizeAutoloadingPaths($autoloaders);
+    }
+
+    protected function normalizeAutoloadingPaths(array $autoloaders): array
+    {
+        $baseDir = dirname($this->composer->getConfig()->get('vendor-dir'));
+        $filesystem = new Filesystem();
+
+        $autoloaders = array_map(function ($paths) use ($baseDir, $filesystem) {
+            return array_map(function ($path) use ($baseDir, $filesystem) {
+                if (!$filesystem->isAbsolutePath($path)) {
+                    return $path;
+                }
+
+                // Normalize absolute paths to be relative to the base path of the project.
+                return str_replace($baseDir, '', $path);
+            }, $paths);
+        }, $autoloaders);
+
+        // var_dump($autoloaders);exit;
+        return $autoloaders;
     }
 
     /**

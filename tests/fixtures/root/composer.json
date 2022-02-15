@@ -1,5 +1,5 @@
 {
-    "name": "alleyinteractive/composer-wordpress-autoload-tests",
+    "name": "alleyinteractive/composer-wordpress-autoload-tests-root",
     "type": "project",
     "license": "GPL",
     "authors": [
@@ -10,7 +10,8 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "alleyinteractive/composer-wordpress-autoloader": "*"
+        "alleyinteractive/composer-wordpress-autoloader": "*",
+        "alleyinteractive/composer-wordpress-autoload-tests-dependency": "*"
     },
     "autoload": {
         "wordpress": {
@@ -33,9 +34,13 @@
         }
     },
     "repositories": {
-        "local": {
+        "composer-wordpress-autoload": {
             "type": "path",
-            "url": "../../"
+            "url": "../../../"
+        },
+        "dependency": {
+            "type": "path",
+            "url": "../dependency"
         }
     },
     "config": {
