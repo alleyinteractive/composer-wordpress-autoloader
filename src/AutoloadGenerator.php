@@ -4,22 +4,25 @@ namespace ComposerWordPressAutoloader;
 
 use Composer\Composer;
 use Composer\Autoload\AutoloadGenerator as ComposerAutoloadGenerator;
-use Composer\Config;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Package\RootPackageInterface;
-use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
-use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 
 /**
  * Composer Autoload Generator
  */
 class AutoloadGenerator extends ComposerAutoloadGenerator
 {
-    protected bool $devMode = true;
     protected Composer $composer;
+    protected bool $devMode = true;
 
+    /**
+     * Constructor.
+     *
+     * @param Composer $composer
+     * @param IOInterface $io
+     */
     public function __construct(Composer $composer, IOInterface $io)
     {
         parent::__construct($composer->getEventDispatcher(), $io);
@@ -34,6 +37,7 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
     public function setDevMode($devMode = true)
     {
         parent::setDevMode($devMode);
+
         $this->devMode = (bool) $devMode;
     }
 
@@ -108,7 +112,7 @@ AUTOLOAD;
      */
     protected function collectAutoloaderRules(): array
     {
-        $autoloaders = $this->parseAutoloads(
+        return $this->parseAutoloads(
             $this->buildPackageMap(
                 $this->composer->getInstallationManager(),
                 $this->composer->getPackage(),
@@ -117,8 +121,6 @@ AUTOLOAD;
             $this->composer->getPackage(),
             !$this->devMode,
         )['wordpress'] ?? [];
-
-        return $autoloaders;
     }
 
     /**
@@ -128,7 +130,7 @@ AUTOLOAD;
      */
     protected function collectExtraAutoloaderRules(): array
     {
-        $autoloaders = $this->parseExtraAutoloads(
+        return $this->parseExtraAutoloads(
             $this->buildPackageMap(
                 $this->composer->getInstallationManager(),
                 $this->composer->getPackage(),
@@ -137,8 +139,6 @@ AUTOLOAD;
             $this->composer->getPackage(),
             !$this->devMode,
         )['wordpress'] ?? [];
-
-        return $autoloaders;
     }
 
     /**
