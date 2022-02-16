@@ -106,7 +106,8 @@ AUTOLOAD;
     }
 
     /**
-     * Collect the autoloader rules to generator for.
+     * Collect the autoloader rules from 'autoload' and 'autoload-dev' to
+     * generate rules for.
      *
      * @return array<string, string>
      */
