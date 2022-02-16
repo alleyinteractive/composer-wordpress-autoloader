@@ -35,10 +35,11 @@ jobs:
 
       - name: Install test dependencies
         run: |
-          cd tests/includes
+          cd tests/fixtures/root
           composer install
 
+      - name: Composer Validate
+        run: composer validate --strict
+
       - name: Execute tests
-        run: |
-          composer run lint
-          composer run test
+        run: composer run test

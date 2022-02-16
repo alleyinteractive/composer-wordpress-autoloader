@@ -12,7 +12,7 @@ class AutoloadFactory
    * @param array<string, array<string>> $rules Array of rules.
    * @return array<Autoloader>
    */
-    public static function generateFromRules(array $rules, string $baseDir)
+    public static function generateFromRules(array $rules)
     {
         $loaders = [];
 
@@ -20,7 +20,7 @@ class AutoloadFactory
             $loaders = array_merge(
                 $loaders,
                 array_map(
-                    fn ($path) => Autoloader::generate($namespace, $baseDir . '/' . $path),
+                    fn ($path) => new Autoloader($namespace, $path),
                     $paths,
                 ),
             );
@@ -35,9 +35,9 @@ class AutoloadFactory
    * @param array<string, string> $rules Array of rules.
    * @return void
    */
-    public static function registerFromRules(array $rules, string $baseDir)
+    public static function registerFromRules(array $rules)
     {
-        foreach (static::generateFromRules($rules, $baseDir) as $autoloader) {
+        foreach (static::generateFromRules($rules) as $autoloader) {
             $autoloader->register();
         }
     }

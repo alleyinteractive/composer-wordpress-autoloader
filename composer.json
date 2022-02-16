@@ -38,7 +38,15 @@
         "lint:fix": "@phpcbf",
         "phpcbf": "phpcbf --standard=./phpcs.xml.dist .",
         "phpcs": "phpcs --standard=./phpcs.xml.dist .",
-        "phpunit": "vendor/bin/phpunit",
-        "test": "@phpunit"
+        "phpunit": "phpunit",
+        "test": [
+            "@phpcs",
+            "@phpunit"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }

@@ -15,6 +15,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     protected Composer $composer;
     protected IOInterface $io;
     protected Filesystem $filesystem;
+    protected AutoloadGenerator $generator;
 
     /**
      * Apply plugin modifications to Composer
@@ -86,13 +87,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $this->filesystem->ensureDirectoryExists($this->composer->getConfig()->get('vendor-dir'));
 
+        $this->generator = new AutoloadGenerator(
+            $this->composer,
+            $this->io,
+        );
+
         // Determine if we should inject our autoloader into the vendor/autoload.php from Composer.
         $injecting = !empty($this->composer->getPackage()->getExtra()['wordpress-autoloader']['inject']);
 
-        $autoloaderFile = $this->getAutoloaderFileContents(
-            $this->collectAutoloaderRules($event),
-            $injecting,
-        );
+        $autoloaderFile = $this->generator->generate($injecting, $event->isDevMode());
 
         // Inject the autoloader into the existing autoloader.
         if ($injecting) {
@@ -127,63 +130,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $vendorDir = $this->composer->getConfig()->get('vendor-dir');
         return "{$vendorDir}/wordpress-autoload.php";
-    }
-
-    /**
-     * Collect the autoloader rules to generator for.
-     *
-     * @param Event $event
-     * @return array<string, string>
-     */
-    protected function collectAutoloaderRules(Event $event): array
-    {
-        $generator = new AutoloadGenerator(
-            $this->composer->getEventDispatcher(),
-            $this->io,
-        );
-
-        return $generator->parseAutoloads(
-            $generator->buildPackageMap(
-                $this->composer->getInstallationManager(),
-                $this->composer->getPackage(),
-                $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages(),
-            ),
-            $this->composer->getPackage(),
-            !$event->isDevMode()
-        )['wordpress'] ?? [];
-    }
-
-    /**
-     * Generate the autoloader file given a set of rules.
-     *
-     * @param array<string, string> $rules Autoloader rules.
-     * @param string $beingInjected Flag if the autoloader is being injected.
-     * @return string
-     */
-    protected function getAutoloaderFileContents(array $rules, bool $beingInjected): string
-    {
-        $contents = '';
-
-        if ($beingInjected) {
-            $contents = "/* Composer WordPress Autoloader Injected */\n\n";
-            $contents .= "\n\n";
-        } else {
-            $contents .= "<?php\n\n";
-            $contents .= "/* Composer WordPress Autoloader */\n\n";
-            $contents .= 'require_once __DIR__ . \'/autoload.php\';';
-            $contents .= "\n\n";
-        }
-
-        $contents .= sprintf(
-            '\ComposerWordPressAutoloader\AutoloadFactory::registerFromRules(%s, \'%s\');',
-            var_export($rules, true),
-            // The base directory for the project.
-            dirname($this->composer->getConfig()->get('vendor-dir')),
-        );
-
-        $contents .= "\n\n";
-
-        return $contents;
     }
 
     /**
