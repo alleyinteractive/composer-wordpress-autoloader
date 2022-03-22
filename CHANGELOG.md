@@ -5,6 +5,10 @@ documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0]
+
+- Remove specific Composer version dependency.
+
 ## 0.2.0
 
 - Updates autoloader to use non-hard-coded paths.
