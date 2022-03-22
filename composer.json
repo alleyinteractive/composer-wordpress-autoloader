@@ -20,7 +20,7 @@
         "squizlabs/php_codesniffer": "^2.0 || ^3.0 || ^4.0"
     },
     "require-dev": {
-        "composer/composer": "^2.0",
+        "composer/composer": "*",
         "phpunit/phpunit": "^8.5.8 || ^9.3.3"
     },
     "extra": {
