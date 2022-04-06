@@ -1,7 +1,7 @@
 {
     "name": "alleyinteractive/composer-wordpress-autoloader",
     "type": "composer-plugin",
-    "description": "Autoload files using WordPress File Conventions",
+    "description": "Autoload files using WordPress File Conventions using Composer",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
