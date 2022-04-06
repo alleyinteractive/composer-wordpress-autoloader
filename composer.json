@@ -1,7 +1,7 @@
 {
     "name": "alleyinteractive/composer-wordpress-autoloader",
     "type": "composer-plugin",
-    "description": "Autoload files using WordPress File Conventions",
+    "description": "Autoload files using WordPress File Conventions using Composer",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
@@ -14,14 +14,14 @@
         }
     ],
     "require": {
-        "php": ">=7.4",
-        "alleyinteractive/wordpress-autoloader": "^0.1",
-        "composer-plugin-api": "^2.0",
-        "squizlabs/php_codesniffer": "^2.0 || ^3.0 || ^4.0"
+        "php": "^7.4.0|^8.0|^8.1",
+        "alleyinteractive/wordpress-autoloader": "^0.2",
+        "composer-plugin-api": "^2.0"
     },
     "require-dev": {
         "composer/composer": "*",
-        "phpunit/phpunit": "^8.5.8 || ^9.3.3"
+        "phpunit/phpunit": "^9.5.8",
+        "squizlabs/php_codesniffer": "^4.0"
     },
     "extra": {
         "class": "ComposerWordPressAutoloader\\Plugin"
