@@ -14,14 +14,14 @@
         }
     ],
     "require": {
-        "php": ">=7.4",
-        "alleyinteractive/wordpress-autoloader": "^0.1",
+        "php": "^7.4.0|^8.0|^8.1",
+        "alleyinteractive/wordpress-autoloader": "^0.2",
         "composer-plugin-api": "^2.0",
         "squizlabs/php_codesniffer": "^2.0 || ^3.0 || ^4.0"
     },
     "require-dev": {
         "composer/composer": "*",
-        "phpunit/phpunit": "^8.5.8 || ^9.3.3"
+        "phpunit/phpunit": "^9.5.8"
     },
     "extra": {
         "class": "ComposerWordPressAutoloader\\Plugin"
