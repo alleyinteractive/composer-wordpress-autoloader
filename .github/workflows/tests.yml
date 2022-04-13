@@ -36,13 +36,15 @@ jobs:
       - name: Composer Validate
         run: composer validate --strict
 
-      - name: Install test dependencies
+      - name: Install root test dependencies
         run: |
-          dir=$(pwd)
           cd tests/fixtures/root
-          composer install --no-dev
-          cd ../inject
-          composer install --no-dev
+          composer install
+
+      - name: Install inject test dependencies
+        run: |
+          cd tests/fixtures/inject
+          composer install
 
       - name: Execute tests
         run: composer run test
