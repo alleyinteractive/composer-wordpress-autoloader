@@ -25,7 +25,6 @@
     },
     "extra": {
         "wordpress-autoloader": {
-            "inject": true,
             "autoload": {
                 "ComposerWordPressAutoloaderTests\\Extra\\": "extra/"
             },

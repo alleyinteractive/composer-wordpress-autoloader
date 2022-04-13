@@ -81,6 +81,8 @@ FILEHEADER;
         }
 
         $autoloadFileContents .= <<<AUTOLOAD
+
+
 \$vendorDir = __DIR__;
 \$baseDir = dirname(\$vendorDir);
 
@@ -97,7 +99,7 @@ AUTOLOAD;
             ;
         }
 
-        $autoloadFileContents .= "\n));\n";
+        $autoloadFileContents .= "));\n";
 
         if (!$beingInjected) {
             $autoloadFileContents .= "\nreturn \$autoload;";
