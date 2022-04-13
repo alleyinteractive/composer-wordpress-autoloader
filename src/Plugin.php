@@ -143,15 +143,18 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $autoloader = file_get_contents($this->composer->getConfig()->get('vendor-dir') . '/autoload.php');
 
         $contents = preg_replace_callback(
-            '/^return ([A-Za-z0-9]*)::getLoader\(\);$/m',
+            '/^return (.*);$/m',
             function ($matches) use ($contents) {
-                $autoloader = '$loader' . $matches[1] . ' = ' . $matches[1] . '::getLoader();';
-                $autoloader .= "\n\n";
-                $autoloader .= $contents;
-                $autoloader .= "\n\n";
-                $autoloader .= 'return $loader' . $matches[1] . ';';
+                $contents = trim($contents);
+                $autoloader = <<<AUTOLOADER
+\$loader = {$matches[1]};
 
-                return $autoloader;
+{$contents}
+
+return \$loader;
+AUTOLOADER;
+
+                return "$autoloader\n";
             },
             $autoloader,
             1,
