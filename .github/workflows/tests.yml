@@ -33,13 +33,18 @@ jobs:
       - name: Install dependencies
         run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
-      - name: Install test dependencies
+      - name: Composer Validate
+        run: composer validate --strict
+
+      - name: Install root test dependencies
         run: |
           cd tests/fixtures/root
           composer install
 
-      - name: Composer Validate
-        run: composer validate --strict
+      - name: Install inject test dependencies
+        run: |
+          cd tests/fixtures/inject
+          composer install
 
       - name: Execute tests
         run: composer run test

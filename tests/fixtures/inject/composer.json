@@ -1,0 +1,37 @@
+{
+    "name": "alleyinteractive/composer-wordpress-autoload-tests-inject",
+    "type": "project",
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "Alley Interactive",
+            "email": "info@alley.co"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "alleyinteractive/composer-wordpress-autoloader": "*"
+    },
+    "autoload": {
+        "wordpress": {
+            "ComposerWordPressAutoloaderTests_Inject\\": "src/"
+        }
+    },
+    "extra": {
+        "wordpress-autoloader": {
+            "inject": true
+        }
+    },
+    "repositories": {
+        "composer-wordpress-autoload": {
+            "type": "path",
+            "url": "../../../"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "alleyinteractive/composer-wordpress-autoloader": true
+        }
+    }
+}

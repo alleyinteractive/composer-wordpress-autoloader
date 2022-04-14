@@ -14,6 +14,10 @@ class AutoloaderTest extends TestCase
         if (!file_exists(__DIR__ . '/fixtures/root/vendor/wordpress-autoload.php')) {
             throw new RuntimeException('"composer install" needs to be run in tests/fixtures/root');
         }
+
+        if (!file_exists(__DIR__ . '/fixtures/inject/vendor/autoload.php')) {
+            throw new RuntimeException('"composer install" needs to be run in tests/fixtures/inject');
+        }
     }
 
     public function testAutoloadedClass()
@@ -59,5 +63,15 @@ class AutoloaderTest extends TestCase
         $actual = md5(file_get_contents(__DIR__ . '/fixtures/root/vendor/wordpress-autoload.php'));
 
         $this->assertEquals($expected, $actual);
+    }
+
+    public function testAutoloadedClassInject()
+    {
+        // Ensure it is undefined until we load it.
+        $this->assertFalse(class_exists(\ComposerWordPressAutoloaderTests_Inject\Example_Class::class));
+
+        require_once __DIR__ . '/fixtures/inject/vendor/autoload.php';
+
+        $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests_Inject\Example_Class::class));
     }
 }
