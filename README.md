@@ -65,18 +65,19 @@ use the following format:
 
 ### Automatically Injecting WordPress Autoloader
 
-By default Composer WordPress Autoloader will automatically inject the
-autoloader into your `vendor/autoload.php` file you're already loading. You can
-load `vendor/autoload.php` like you do normally and have your
-WordPress-autoloader-powered files automatically load.
-
-This is enabled by default. To disable injection, set `inject` equal to `false`.
+By default Composer WordPress Autoloader will automatically load the WordPress
+autoloader. This is done by adding `src/autoload.php` as a autoloaded file to
+Composer. However, this may not always work under some circumstances including
+symlinks. When necessary, you can opt to inject the
+`vendor/wordpress-autoload.php` file into your `vendor/autoload.php` file. This
+is disabled by default and be enabled by setting `inject` to `true` in your
+`composer.json`.
 
 ```json
 {
   "extra": {
     "wordpress-autoloader": {
-      "inject": false
+      "inject": true
     }
   }
 }

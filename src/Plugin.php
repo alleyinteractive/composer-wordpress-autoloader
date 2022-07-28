@@ -100,8 +100,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->composer->getPackage()->getExtra()['wordpress-autoloader'] ?? [],
         );
 
-        // Determine if we should inject our autoloader into the vendor/autoload.php from Composer.
-        $injecting = $extra['inject'];
+        /**
+         * Determine if we should inject our autoloader into the
+         * vendor/autoload.php from Composer.
+         *
+         * Injecting is not generally necessary any more since the file will
+         * automatically be loaded. However, it is still possible to inject it
+         * for circumstances where it is needed such as when dealing with symlinks.
+         */
+        $injecting = $extra['inject'] ?? false;
 
         $autoloaderFile = $this->generator->generate($injecting, $event->isDevMode());
 

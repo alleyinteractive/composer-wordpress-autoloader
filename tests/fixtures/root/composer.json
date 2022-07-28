@@ -36,6 +36,9 @@
     },
     "repositories": {
         "composer-wordpress-autoload": {
+            "options": {
+                "symlink": false
+            },
             "type": "path",
             "url": "../../../"
         },

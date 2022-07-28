@@ -27,6 +27,9 @@
         "class": "ComposerWordPressAutoloader\\Plugin"
     },
     "autoload": {
+        "files": [
+            "src/autoload.php"
+        ],
         "psr-4": {
             "ComposerWordPressAutoloader\\": "src/"
         }
