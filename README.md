@@ -65,9 +65,12 @@ use the following format:
 
 ### Automatically Injecting WordPress Autoloader
 
-Composer WordPress Autoloader can also automatically inject the WordPress
-autoloader into your `vendor/autoload.php` file you're already loading. This is
-enabled by default. To disable injection, set `inject` equal to `false`.
+By default Composer WordPress Autoloader will automatically inject the
+autoloader into your `vendor/autoload.php` file you're already loading. You can
+load `vendor/autoload.php` like you do normally and have your
+WordPress-autoloader-powered files automatically load.
+
+This is enabled by default. To disable injection, set `inject` equal to `false`.
 
 ```json
 {
@@ -78,9 +81,6 @@ enabled by default. To disable injection, set `inject` equal to `false`.
   }
 }
 ```
-
-You can load `vendor/autoload.php` like you do normally and have your
-WordPress-autoloader-powered files automatically load.
 
 ## Testing
 
