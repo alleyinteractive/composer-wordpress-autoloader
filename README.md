@@ -80,7 +80,7 @@ enabled by default. To disable injection, set `inject` equal to `false`.
 ```
 
 You can load `vendor/autoload.php` like you do normally and have your
-WordPress-autoloader powered files automatically load.
+WordPress-autoloader-powered files automatically load.
 
 ## Testing
 
