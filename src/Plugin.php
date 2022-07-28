@@ -85,7 +85,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function generateAutoloaderFile(Event $event): void
     {
-        // var_dump(func_get_args());exit;
         $this->filesystem->ensureDirectoryExists($this->composer->getConfig()->get('vendor-dir'));
 
         $this->generator = new AutoloadGenerator(
@@ -93,8 +92,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->io,
         );
 
+        // Merge default configuration with the one provided in the composer.json file.
+        $extra = array_merge(
+            [
+                'inject' => true,
+            ],
+            $this->composer->getPackage()->getExtra()['wordpress-autoloader'] ?? [],
+        );
+
         // Determine if we should inject our autoloader into the vendor/autoload.php from Composer.
-        $injecting = !empty($this->composer->getPackage()->getExtra()['wordpress-autoloader']['inject']);
+        $injecting = $extra['inject'];
 
         $autoloaderFile = $this->generator->generate($injecting, $event->isDevMode());
 
@@ -147,8 +154,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $contents = preg_replace_callback(
             '/^return (.*);$/m',
             function ($matches) use ($filename) {
-                // var_dump($matches, $filename);exit;
-                // $contents = trim($contents);
                 $autoloader = <<<AUTOLOADER
 require_once __DIR__ . '/{$filename}';
 
