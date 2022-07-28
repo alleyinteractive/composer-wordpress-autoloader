@@ -257,7 +257,7 @@ AUTOLOAD;
                 $installPath = substr($installPath, 0, -strlen('/' . $package->getTargetDir()));
             }
 
-            if ($package !== $rootPackage) {
+            if ($package !== $rootPackage && $rootPackage->getTargetDir()) {
                 $installPath = str_replace($rootPackage->getTargetDir(), '', $installPath);
             }
 
