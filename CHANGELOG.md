@@ -8,7 +8,8 @@ documented in this file.
 ## v0.5.0
 
 - Simplify injection of autoloader.
-- Inject autoloader by default to `vendor/autoload.php`.
+- Automatically load the autoloader inside of `vendor/autoload.php` without the
+  need to load `vendor/wordpress-autoload.php` manually.
 
 ## v0.4.1
 
