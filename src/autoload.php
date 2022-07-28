@@ -12,7 +12,7 @@ $vendor_path = [
 ];
 
 foreach ($vendor_path as $path) {
-    if (file_exists($path)) {
+    if (!is_dir($path) && file_exists($path)) {
         require_once $path;
         break;
     }
