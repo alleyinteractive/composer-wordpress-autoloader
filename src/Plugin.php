@@ -85,6 +85,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function generateAutoloaderFile(Event $event): void
     {
+        // var_dump(func_get_args());exit;
         $this->filesystem->ensureDirectoryExists($this->composer->getConfig()->get('vendor-dir'));
 
         $this->generator = new AutoloadGenerator(
@@ -97,26 +98,26 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
         $autoloaderFile = $this->generator->generate($injecting, $event->isDevMode());
 
+        if (
+            $this->filesystem->filePutContentsIfModified(
+                $this->getAutoloaderFilePath(),
+                $autoloaderFile,
+            )
+        ) {
+            $this->io->write('<info>WordPress Autoloader generated.</info>');
+        }
+
         // Inject the autoloader into the existing autoloader.
         if ($injecting) {
             if (
                 $this->filesystem->filePutContentsIfModified(
                     $this->composer->getConfig()->get('vendor-dir') . '/autoload.php',
-                    $this->getInjectedAutoloaderFileContents($autoloaderFile),
+                    $this->getInjectedAutoloaderFileContents($this->getAutoloaderFilePath()),
                 )
             ) {
-                $this->io->write('<info>WordPress Autoloader generated and injected.</info>');
+                $this->io->write('<info>WordPress Autoloader injected.</info>');
             } else {
                 $this->io->write('<error>Error injecting Wordpress Autoloader.</error>');
-            }
-        } else {
-            if (
-                $this->filesystem->filePutContentsIfModified(
-                    $this->getAutoloaderFilePath(),
-                    $autoloaderFile,
-                )
-            ) {
-                $this->io->write('<info>WordPress Autoloader generated.</info>');
             }
         }
     }
@@ -135,23 +136,23 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     /**
      * Generate the injected autoloader file.
      *
-     * @param string $contents File contents to inject.
+     * @param string $autoloaderFileName The path to the WordPress autoloader file.
      * @return string
      */
-    protected function getInjectedAutoloaderFileContents(string $contents): string
+    protected function getInjectedAutoloaderFileContents(string $autoloaderFileName): string
     {
+        $filename = basename($autoloaderFileName);
         $autoloader = file_get_contents($this->composer->getConfig()->get('vendor-dir') . '/autoload.php');
 
         $contents = preg_replace_callback(
             '/^return (.*);$/m',
-            function ($matches) use ($contents) {
-                $contents = trim($contents);
+            function ($matches) use ($filename) {
+                // var_dump($matches, $filename);exit;
+                // $contents = trim($contents);
                 $autoloader = <<<AUTOLOADER
-\$loader = {$matches[1]};
+require_once __DIR__ . '/{$filename}';
 
-{$contents}
-
-return \$loader;
+{$matches[0]}
 AUTOLOADER;
 
                 return "$autoloader\n";

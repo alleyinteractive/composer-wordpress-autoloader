@@ -59,7 +59,7 @@ class AutoloaderTest extends TestCase
 
     public function testAutoloaderFile()
     {
-        $expected = 'fe5f9e576c96f9a23e1e72c79ae46564';
+        $expected = '917584115f2659b859cfcac9a55d7816';
         $actual = md5(file_get_contents(__DIR__ . '/fixtures/root/vendor/wordpress-autoload.php'));
 
         $this->assertEquals($expected, $actual);
