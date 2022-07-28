@@ -36,9 +36,8 @@ composer require alleyinteractive/composer-wordpress-autoloader
 }
 ```
 
-Once added a `vendor/wordpress-autoload.php` file will be created. You can load
-that in place of `vendor/autoload.php` (it will load that for you) to load you
-WordPress and Composer dependencies.
+Once added a `vendor/wordpress-autoload.php` file will be created. That file
+will automatically be loaded when loading `vendor/autoload.php`.
 
 ### Use Inside Packages Published to Packagist
 
