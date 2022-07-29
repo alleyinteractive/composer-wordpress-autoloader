@@ -95,7 +95,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         // Merge default configuration with the one provided in the composer.json file.
         $extra = array_merge(
             [
-                'inject' => true,
+                'inject' => false,
             ],
             $this->composer->getPackage()->getExtra()['wordpress-autoloader'] ?? [],
         );
@@ -118,7 +118,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 $autoloaderFile,
             )
         ) {
-            $this->io->write('<info>WordPress Autoloader generated.</info>');
+            if (!$injecting) {
+                $this->io->write('<info>WordPress autoloader generated.</info>');
+            }
+        } else {
+            $this->io->write('<error>Error generating WordPress autoloader.</error>');
         }
 
         // Inject the autoloader into the existing autoloader.
@@ -129,7 +133,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                     $this->getInjectedAutoloaderFileContents($this->getAutoloaderFilePath()),
                 )
             ) {
-                $this->io->write('<info>WordPress Autoloader injected.</info>');
+                $this->io->write('<info>WordPress autoloader genearted and injected into vendor/autoload.php.</info>');
             } else {
                 $this->io->write('<error>Error injecting Wordpress Autoloader.</error>');
             }
@@ -162,9 +166,18 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             '/^return (.*);$/m',
             function ($matches) use ($filename) {
                 $autoloader = <<<AUTOLOADER
+\$loader = {$matches[1]};
+
+/*
+  Composer WordPress Autoloader injected by alleyinteractive/composer-wordpress-autoloader
+
+  To disable, set the "inject" key in the 'extra -> wordpress-autoloader'
+  section of your composer.json file to false. Injecting the autoloader is
+  not generally necessary as the autoloader is automatically loaded for you.
+*/
 require_once __DIR__ . '/{$filename}';
 
-{$matches[0]}
+return \$loader;
 AUTOLOADER;
 
                 return "$autoloader\n";

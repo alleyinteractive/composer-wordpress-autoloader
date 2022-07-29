@@ -30,8 +30,7 @@
             },
             "autoload-dev": {
                 "ComposerWordPressAutoloaderTests\\Extra\\Tests\\": "tests-extra/"
-            },
-            "inject": false
+            }
         }
     },
     "repositories": {
