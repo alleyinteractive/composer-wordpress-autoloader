@@ -36,9 +36,9 @@ composer require alleyinteractive/composer-wordpress-autoloader
 }
 ```
 
-Once added a `vendor/wordpress-autoload.php` file will be created. You can load
-that in place of `vendor/autoload.php` (it will load that for you) to load you
-WordPress and Composer dependencies.
+Once added, you can load `vendor/autoload.php` as normal and the autoloader will
+handle the rest. If that doesn't work, see [Automatically Injecting WordPress
+Autoloader](#automatically-injecting-wordpress-autoloader).
 
 ### Use Inside Packages Published to Packagist
 
@@ -65,9 +65,13 @@ use the following format:
 
 ### Automatically Injecting WordPress Autoloader
 
-Composer WordPress Autoloader can also automatically inject the WordPress
-autoloader into your `vendor/autoload.php` file you're already loading. This is
-disabled by default.
+By default Composer WordPress Autoloader will automatically load the WordPress
+autoloader. This is done by adding `src/autoload.php` as an autoloaded file to
+Composer. However, this may not always work under some circumstances including
+symlinks. When necessary, you can opt to inject the
+`vendor/wordpress-autoload.php` file into your `vendor/autoload.php` file. This
+is disabled by default and be enabled by setting `inject` to `true` in your
+`composer.json`.
 
 ```json
 {
@@ -78,9 +82,6 @@ disabled by default.
   }
 }
 ```
-
-Once enabled, you can load `vendor/autoload.php` like you do normally and have
-your WordPress files automatically loaded.
 
 ## Testing
 

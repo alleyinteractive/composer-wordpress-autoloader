@@ -92,31 +92,59 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->io,
         );
 
-        // Determine if we should inject our autoloader into the vendor/autoload.php from Composer.
-        $injecting = !empty($this->composer->getPackage()->getExtra()['wordpress-autoloader']['inject']);
+        // Merge default configuration with the one provided in the composer.json file.
+        $extra = array_merge(
+            [
+                'inject' => false,
+            ],
+            $this->composer->getPackage()->getExtra()['wordpress-autoloader'] ?? [],
+        );
+
+        /**
+         * Determine if we should inject our autoloader into the
+         * vendor/autoload.php from Composer.
+         *
+         * Injecting is not generally necessary any more since the file will
+         * automatically be loaded. However, it is still possible to inject it
+         * for circumstances where it is needed such as when dealing with symlinks.
+         */
+        $injecting = $extra['inject'] ?? false;
 
         $autoloaderFile = $this->generator->generate($injecting, $event->isDevMode());
+
+        $partyEmoji = [
+            '🪩',
+            '🎉',
+            '🎊',
+            '🍾',
+        ];
+
+        $partyEmoji = $partyEmoji[array_rand($partyEmoji)];
+
+        if (
+            $this->filesystem->filePutContentsIfModified(
+                $this->getAutoloaderFilePath(),
+                $autoloaderFile,
+            )
+        ) {
+            if (!$injecting) {
+                $this->io->write("<info>{$partyEmoji} WordPress autoloader generated</info>");
+            }
+        }
 
         // Inject the autoloader into the existing autoloader.
         if ($injecting) {
             if (
                 $this->filesystem->filePutContentsIfModified(
                     $this->composer->getConfig()->get('vendor-dir') . '/autoload.php',
-                    $this->getInjectedAutoloaderFileContents($autoloaderFile),
+                    $this->getInjectedAutoloaderFileContents($this->getAutoloaderFilePath()),
                 )
             ) {
-                $this->io->write('<info>WordPress Autoloader generated and injected.</info>');
+                $this->io->write(
+                    "<info>{$partyEmoji} WordPress autoloader genearted and injected into vendor/autoload.php.</info>"
+                );
             } else {
-                $this->io->write('<error>Error injecting Wordpress Autoloader.</error>');
-            }
-        } else {
-            if (
-                $this->filesystem->filePutContentsIfModified(
-                    $this->getAutoloaderFilePath(),
-                    $autoloaderFile,
-                )
-            ) {
-                $this->io->write('<info>WordPress Autoloader generated.</info>');
+                $this->io->write('<error>⚠️ Error injecting Wordpress Autoloader.</error>');
             }
         }
     }
@@ -135,21 +163,28 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     /**
      * Generate the injected autoloader file.
      *
-     * @param string $contents File contents to inject.
+     * @param string $autoloaderFileName The path to the WordPress autoloader file.
      * @return string
      */
-    protected function getInjectedAutoloaderFileContents(string $contents): string
+    protected function getInjectedAutoloaderFileContents(string $autoloaderFileName): string
     {
+        $filename = basename($autoloaderFileName);
         $autoloader = file_get_contents($this->composer->getConfig()->get('vendor-dir') . '/autoload.php');
 
         $contents = preg_replace_callback(
             '/^return (.*);$/m',
-            function ($matches) use ($contents) {
-                $contents = trim($contents);
+            function ($matches) use ($filename) {
                 $autoloader = <<<AUTOLOADER
 \$loader = {$matches[1]};
 
-{$contents}
+/*
+  Composer WordPress Autoloader injected by alleyinteractive/composer-wordpress-autoloader
+
+  To disable, set the "inject" key in the 'extra -> wordpress-autoloader'
+  section of your composer.json file to false. Injecting the autoloader is
+  not generally necessary as the autoloader is automatically loaded for you.
+*/
+require_once __DIR__ . '/{$filename}';
 
 return \$loader;
 AUTOLOADER;
