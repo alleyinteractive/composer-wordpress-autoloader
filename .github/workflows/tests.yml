@@ -39,12 +39,12 @@ jobs:
       - name: Install root test dependencies
         run: |
           cd tests/fixtures/root
-          rm -rf vendor && composer install
+          composer install
 
       - name: Install inject test dependencies
         run: |
           cd tests/fixtures/inject
-          rm -rf vendor && composer install
+          composer install
 
       - name: Execute tests
         run: composer run test
