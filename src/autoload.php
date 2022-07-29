@@ -6,12 +6,17 @@
  * Used to automatically load the file when vendor/autoload.php is loaded.
  */
 
-$vendor_path = [
-  preg_replace('#/vendor/.*$#', '/vendor/wordpress-autoload.php', __DIR__),
-  '../../../vendor/wordpress-autoload.php',
+$autoloadFiles = [
+    preg_replace('#/vendor/.*$#', '/vendor/wordpress-autoload.php', __DIR__),
+    '../../../vendor/wordpress-autoload.php',
+    realpath('../../../vendor/wordpress-autoload.php'),
 ];
 
-foreach ($vendor_path as $path) {
+if (defined('PHPUNIT_COMPOSER_INSTALL')) {
+    var_dump('Autoloading', $autoloadFiles);
+}
+
+foreach ($autoloadFiles as $path) {
     if ($path && !is_dir($path) && file_exists($path)) {
         require_once $path;
         break;
