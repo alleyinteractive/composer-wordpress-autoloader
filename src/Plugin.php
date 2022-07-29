@@ -130,8 +130,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             if (!$injecting) {
                 $this->io->write("<info>{$partyEmoji} WordPress autoloader generated</info>");
             }
-        } else {
-            $this->io->write('<error>⚠️ Error generating WordPress autoloader.</error>');
         }
 
         // Inject the autoloader into the existing autoloader.
