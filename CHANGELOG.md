@@ -5,7 +5,7 @@ documented in this file.
 
 ## Unreleased
 
-## v0.5.0
+## v0.6.0
 
 - Simplify injection of autoloader.
 - Automatically load the autoloader inside of `vendor/autoload.php` without the
