@@ -112,6 +112,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
         $autoloaderFile = $this->generator->generate($injecting, $event->isDevMode());
 
+        $partyEmoji = [
+            '🪩',
+            '🎉',
+            '🎊',
+            '🍾',
+        ];
+
+        $partyEmoji = $partyEmoji[array_rand($partyEmoji)];
+
         if (
             $this->filesystem->filePutContentsIfModified(
                 $this->getAutoloaderFilePath(),
@@ -119,10 +128,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             )
         ) {
             if (!$injecting) {
-                $this->io->write('<info>WordPress autoloader generated.</info>');
+                $this->io->write("<info>{$partyEmoji} WordPress autoloader generated</info>");
             }
         } else {
-            $this->io->write('<error>Error generating WordPress autoloader.</error>');
+            $this->io->write('<error>⚠️ Error generating WordPress autoloader.</error>');
         }
 
         // Inject the autoloader into the existing autoloader.
@@ -133,9 +142,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                     $this->getInjectedAutoloaderFileContents($this->getAutoloaderFilePath()),
                 )
             ) {
-                $this->io->write('<info>WordPress autoloader genearted and injected into vendor/autoload.php.</info>');
+                $this->io->write(
+                    "<info>{$partyEmoji} WordPress autoloader genearted and injected into vendor/autoload.php.</info>"
+                );
             } else {
-                $this->io->write('<error>Error injecting Wordpress Autoloader.</error>');
+                $this->io->write('<error>⚠️ Error injecting Wordpress Autoloader.</error>');
             }
         }
     }
