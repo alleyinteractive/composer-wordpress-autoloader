@@ -7,12 +7,12 @@
  */
 
 $vendor_path = [
-  preg_replace('#/vendor/.*$#', '/vendor', __DIR__),
+  preg_replace('#/vendor/.*$#', '/vendor/wordpress-autoload.php', __DIR__),
   '../../../vendor/wordpress-autoload.php',
 ];
 
 foreach ($vendor_path as $path) {
-    if (!is_dir($path) && file_exists($path)) {
+    if ($path && !is_dir($path) && file_exists($path)) {
         require_once $path;
         break;
     }
