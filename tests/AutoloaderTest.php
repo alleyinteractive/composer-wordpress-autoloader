@@ -11,11 +11,11 @@ class AutoloaderTest extends TestCase
     {
         parent::setUp();
 
-        if (!file_exists(__DIR__ . '/fixtures/root/vendor/autoload.php')) {
+        if (!file_exists(__DIR__ . '/fixtures/root/vendor/wordpress-autoload.php')) {
             throw new RuntimeException('"composer install" needs to be run in tests/fixtures/root');
         }
 
-        if (!file_exists(__DIR__ . '/fixtures/inject/vendor/autoload.php')) {
+        if (!file_exists(__DIR__ . '/fixtures/inject/vendor/wordpress-autoload.php')) {
             throw new RuntimeException('"composer install" needs to be run in tests/fixtures/inject');
         }
     }
@@ -26,7 +26,7 @@ class AutoloaderTest extends TestCase
         $this->assertFalse(class_exists(\ComposerWordPressAutoloaderTests\Example_Class::class));
         $this->assertFalse(class_exists(\ComposerWordPressAutoloaderTests\Tests\Example_Test_File::class));
 
-        require_once __DIR__ . '/fixtures/root/vendor/autoload.php';
+        require_once __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php';
 
         $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests\Example_Class::class));
         $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests\Tests\Example_Test_File::class));
@@ -34,7 +34,7 @@ class AutoloaderTest extends TestCase
 
     public function testExtraAutoloadedClass()
     {
-        require_once __DIR__ . '/fixtures/root/vendor/autoload.php';
+        require_once __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php';
 
         $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests\Extra\Example_Class::class));
         $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests\Extra\Tests\Example_Test_File::class));
@@ -42,14 +42,14 @@ class AutoloaderTest extends TestCase
 
     public function testAutoloadedClassDependency()
     {
-        require_once __DIR__ . '/fixtures/root/vendor/autoload.php';
+        require_once __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php';
 
         $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests_Dependency\Example_Class::class));
     }
 
     public function testAutoloadedClassDependencyExtra()
     {
-        require_once __DIR__ . '/fixtures/root/vendor/autoload.php';
+        require_once __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php';
 
         $this->assertTrue(
             class_exists(\ComposerWordPressAutoloaderTests_Dependency\Extra\Example_Class::class),
@@ -70,7 +70,7 @@ class AutoloaderTest extends TestCase
         // Ensure it is undefined until we load it.
         $this->assertFalse(class_exists(\ComposerWordPressAutoloaderTests_Inject\Example_Class::class));
 
-        require_once __DIR__ . '/fixtures/inject/vendor/autoload.php';
+        require_once __DIR__ . '/fixtures/inject/vendor/wordpress-autoload.php';
 
         $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests_Inject\Example_Class::class));
     }

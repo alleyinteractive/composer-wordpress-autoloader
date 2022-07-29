@@ -10,13 +10,7 @@ $autoloadFiles = [
     preg_replace('#/vendor/.*$#', '/vendor/wordpress-autoload.php', __DIR__),
     '../../../vendor/wordpress-autoload.php',
     '../../vendor/wordpress-autoload.php',
-    realpath('../../../vendor/wordpress-autoload.php'),
-    realpath('../../vendor/wordpress-autoload.php'),
 ];
-
-if (defined('PHPUNIT_COMPOSER_INSTALL')) {
-    var_dump('Autoloading', __DIR__, __FILE__, $autoloadFiles);
-}
 
 foreach ($autoloadFiles as $path) {
     if ($path && !is_dir($path) && file_exists($path)) {
