@@ -5,6 +5,11 @@ documented in this file.
 
 ## Unreleased
 
+## v0.7.0
+
+- Add APCu autoloader.
+- Bump `alleyinteractive/wordpress-autoloader` to `v1.1.0`.
+
 ## v0.6.0
 
 - Simplify injection of autoloader.

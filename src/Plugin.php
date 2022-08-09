@@ -92,6 +92,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->io,
         );
 
+        $this->generator->setApcu(
+            $this->composer->getConfig()->get('apcu-autoloader')
+        );
+
         // Merge default configuration with the one provided in the composer.json file.
         $extra = array_merge(
             [

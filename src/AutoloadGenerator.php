@@ -16,6 +16,8 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
 {
     protected Composer $composer;
     protected bool $devMode = true;
+    protected bool $apcu = false;
+    protected ?string $apcuPrefix = null;
 
     /**
      * Constructor.
@@ -39,6 +41,21 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
         parent::setDevMode($devMode);
 
         $this->devMode = (bool) $devMode;
+    }
+
+    /**
+     * Whether generated autoloader considers APCu caching.
+     *
+     * @param bool        $apcu
+     * @param string|null $apcuPrefix
+     * @return void
+     */
+    public function setApcu(bool $apcu, ?string $apcuPrefix = null)
+    {
+        parent::setApcu($apcu, $apcuPrefix);
+
+        $this->apcu = $apcu;
+        $this->apcuPrefix = $apcuPrefix !== null ? $apcuPrefix : $apcuPrefix;
     }
 
     /**
@@ -81,8 +98,18 @@ FILEHEADER;
             $autoloadFileContents .= "\n\$autoload = require_once __DIR__ . '/autoload.php';\n";
         }
 
-        $autoloadFileContents .= <<<AUTOLOAD
+        // Inject the APCu prefix if it's enabled.
+        if ($this->apcu) {
+            $apcuPrefix = var_export(
+                $this->apcuPrefix !== null
+                    ? $this->apcuPrefix
+                    : substr(base64_encode(md5(uniqid('', true), true)), 0, -3),
+                true,
+            );
+            $autoloadFileContents .= "\n\\ComposerWordPressAutoloader\AutoloadFactory::setApcuPrefix($apcuPrefix);\n";
+        }
 
+        $autoloadFileContents .= <<<AUTOLOAD
 
 \$vendorDir = __DIR__;
 \$baseDir = dirname(\$vendorDir);
