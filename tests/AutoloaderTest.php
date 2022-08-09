@@ -18,6 +18,10 @@ class AutoloaderTest extends TestCase
         if (!file_exists(__DIR__ . '/fixtures/inject/vendor/wordpress-autoload.php')) {
             throw new RuntimeException('"composer install" needs to be run in tests/fixtures/inject');
         }
+
+        if (!file_exists(__DIR__ . '/fixtures/apcu/vendor/wordpress-autoload.php')) {
+            throw new RuntimeException('"composer install" needs to be run in tests/fixtures/apcu');
+        }
     }
 
     public function testAutoloadedClass()
