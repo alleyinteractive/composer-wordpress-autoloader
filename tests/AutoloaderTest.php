@@ -18,6 +18,10 @@ class AutoloaderTest extends TestCase
         if (!file_exists(__DIR__ . '/fixtures/inject/vendor/wordpress-autoload.php')) {
             throw new RuntimeException('"composer install" needs to be run in tests/fixtures/inject');
         }
+
+        if (!file_exists(__DIR__ . '/fixtures/apcu/vendor/wordpress-autoload.php')) {
+            throw new RuntimeException('"composer install" needs to be run in tests/fixtures/apcu');
+        }
     }
 
     public function testAutoloadedClass()
@@ -59,7 +63,7 @@ class AutoloaderTest extends TestCase
 
     public function testAutoloaderFile()
     {
-        $expected = '917584115f2659b859cfcac9a55d7816';
+        $expected = '9893efd7d77972c681f2693e9d20a975';
         $actual = md5(file_get_contents(__DIR__ . '/fixtures/root/vendor/wordpress-autoload.php'));
 
         $this->assertEquals($expected, $actual);
@@ -73,5 +77,20 @@ class AutoloaderTest extends TestCase
         require_once __DIR__ . '/fixtures/inject/vendor/wordpress-autoload.php';
 
         $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests_Inject\Example_Class::class));
+    }
+
+    public function testApcuLoader()
+    {
+        // Ensure it is undefined until we load it.
+        $this->assertFalse(class_exists(\ComposerWordPressAutoloaderTests_APCu\Example_Class::class));
+
+        require_once __DIR__ . '/fixtures/apcu/vendor/wordpress-autoload.php';
+
+        $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests_APCu\Example_Class::class));
+
+        $this->assertStringContainsString(
+            'setApcuPrefix(',
+            file_get_contents(__DIR__ . '/fixtures/apcu/vendor/wordpress-autoload.php'),
+        );
     }
 }

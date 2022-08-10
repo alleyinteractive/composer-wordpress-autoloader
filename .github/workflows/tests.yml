@@ -46,5 +46,10 @@ jobs:
           cd tests/fixtures/inject
           composer install
 
+      - name: Install APCu test dependencies
+        run: |
+          cd tests/fixtures/apcu
+          composer install
+
       - name: Execute tests
         run: composer run test
