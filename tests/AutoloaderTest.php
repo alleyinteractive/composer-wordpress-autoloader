@@ -22,43 +22,64 @@ class AutoloaderTest extends TestCase
         if (!file_exists(__DIR__ . '/fixtures/apcu/vendor/wordpress-autoload.php')) {
             throw new RuntimeException('"composer install" needs to be run in tests/fixtures/apcu');
         }
+
+        if (!file_exists(__DIR__ . '/fixtures/vendor-dir/client-mu-plugins/vendor/wordpress-autoload.php')) {
+            throw new RuntimeException('"composer install" needs to be run in tests/fixtures/vendor-dir');
+        }
     }
 
-    public function testAutoloadedClass()
+    /**
+     * @dataProvider autoloaders
+     */
+    public function testAutoloaders(string $file, array $classes)
     {
-        // Ensure it is undefined until we load it.
-        $this->assertFalse(class_exists(\ComposerWordPressAutoloaderTests\Example_Class::class));
-        $this->assertFalse(class_exists(\ComposerWordPressAutoloaderTests\Tests\Example_Test_File::class));
+        foreach ($classes as $class) {
+            $this->assertFalse(class_exists($class), "Class {$class} should not be found");
+        }
 
-        require_once __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php';
+        require_once $file;
 
-        $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests\Example_Class::class));
-        $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests\Tests\Example_Test_File::class));
+        foreach ($classes as $class) {
+            $this->assertTrue(class_exists($class), "Class {$class} should be found");
+        }
     }
 
-    public function testExtraAutoloadedClass()
+    /**
+     * Data provider for all the various autoloader fixtures.
+     */
+    public function autoloaders()
     {
-        require_once __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php';
-
-        $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests\Extra\Example_Class::class));
-        $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests\Extra\Tests\Example_Test_File::class));
-    }
-
-    public function testAutoloadedClassDependency()
-    {
-        require_once __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php';
-
-        $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests_Dependency\Example_Class::class));
-    }
-
-    public function testAutoloadedClassDependencyExtra()
-    {
-        require_once __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php';
-
-        $this->assertTrue(
-            class_exists(\ComposerWordPressAutoloaderTests_Dependency\Extra\Example_Class::class),
-            \ComposerWordPressAutoloaderTests_Dependency\Extra\Example_Class::class . ' class does not exist',
-        );
+        return [
+            [
+                __DIR__ . '/fixtures/root/vendor/wordpress-autoload.php',
+                [
+                    \ComposerWordPressAutoloaderTests\Example_Class::class,
+                    \ComposerWordPressAutoloaderTests\Tests\Example_Test_File::class,
+                    \ComposerWordPressAutoloaderTests\Extra\Example_Class::class,
+                    \ComposerWordPressAutoloaderTests\Extra\Tests\Example_Test_File::class,
+                    \ComposerWordPressAutoloaderTests_Dependency\Example_Class::class,
+                    \ComposerWordPressAutoloaderTests_Dependency\Extra\Example_Class::class,
+                ],
+            ],
+            [
+                __DIR__ . '/fixtures/inject/vendor/wordpress-autoload.php',
+                [
+                    \ComposerWordPressAutoloaderTests_Inject\Example_Class::class,
+                ],
+            ],
+            [
+                __DIR__ . '/fixtures/apcu/vendor/wordpress-autoload.php',
+                [
+                    \ComposerWordPressAutoloaderTests_APCu\Example_Class::class,
+                ],
+            ],
+            [
+                __DIR__ . '/fixtures/vendor-dir/client-mu-plugins/vendor/wordpress-autoload.php',
+                [
+                    \ComposerWordPressAutoloaderTests_VendorDir\Example_Class::class,
+                ],
+            ],
+        ];
     }
 
     public function testAutoloaderFile()
@@ -69,25 +90,8 @@ class AutoloaderTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testAutoloadedClassInject()
-    {
-        // Ensure it is undefined until we load it.
-        $this->assertFalse(class_exists(\ComposerWordPressAutoloaderTests_Inject\Example_Class::class));
-
-        require_once __DIR__ . '/fixtures/inject/vendor/wordpress-autoload.php';
-
-        $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests_Inject\Example_Class::class));
-    }
-
     public function testApcuLoader()
     {
-        // Ensure it is undefined until we load it.
-        $this->assertFalse(class_exists(\ComposerWordPressAutoloaderTests_APCu\Example_Class::class));
-
-        require_once __DIR__ . '/fixtures/apcu/vendor/wordpress-autoload.php';
-
-        $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests_APCu\Example_Class::class));
-
         $this->assertStringContainsString(
             'setApcuPrefix(',
             file_get_contents(__DIR__ . '/fixtures/apcu/vendor/wordpress-autoload.php'),
