@@ -5,6 +5,10 @@ documented in this file.
 
 ## Unreleased
 
+## v0.8.0
+
+- Automatically translate the `vendor-dir` and set the autoloaded files relative to the root directory of the project.
+
 ## v0.7.0
 
 - Add APCu autoloader.
