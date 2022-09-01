@@ -92,7 +92,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->io,
         );
 
-        $this->generator->setApcu(
+        $this->generator->setApcuMode(
             $this->composer->getConfig()->get('apcu-autoloader')
         );
 
