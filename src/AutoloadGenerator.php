@@ -99,6 +99,8 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
      *
      * @param array $rules The rules to use to generate the autoloader.
      * @param boolean $beingInjected Flag if the autoload file is being injected.
+     * @param string $vendorPathCode Vendor path code.
+     * @param string $appBaseDirCode App base dir code.
      * @return string
      */
     protected function getAutoloadFileContents(
