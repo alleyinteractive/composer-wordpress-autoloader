@@ -4,3 +4,4 @@ composer.lock
 phpcs.xml
 .vscode
 .phpunit.result.cache
+client-mu-plugins/vendor

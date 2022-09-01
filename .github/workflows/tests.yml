@@ -37,19 +37,16 @@ jobs:
         run: composer validate --strict
 
       - name: Install root test dependencies
-        run: |
-          cd tests/fixtures/root
-          composer install
+        run: cd tests/fixtures/root && composer install
 
       - name: Install inject test dependencies
-        run: |
-          cd tests/fixtures/inject
-          composer install
+        run: cd tests/fixtures/inject && composer install
 
       - name: Install APCu test dependencies
-        run: |
-          cd tests/fixtures/apcu
-          composer install
+        run: cd tests/fixtures/apcu && composer install
+
+      - name: Install vendor-dir test dependencies
+        run: cd tests/fixtures/vendor-dir && composer install
 
       - name: Execute tests
         run: composer run test
