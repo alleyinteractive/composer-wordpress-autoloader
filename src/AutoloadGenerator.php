@@ -50,7 +50,7 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
      * @param string|null $apcuPrefix
      * @return void
      */
-    public function setApcu(bool $apcu, ?string $apcuPrefix = null)
+    public function setApcuMode(bool $apcu, ?string $apcuPrefix = null)
     {
         parent::setApcu($apcu, $apcuPrefix);
 
