@@ -2,6 +2,7 @@
 
 namespace ComposerWordPressAutoloader;
 
+use Composer\Autoload\ClassMapGenerator;
 use Composer\Composer;
 use Composer\Autoload\AutoloadGenerator as ComposerAutoloadGenerator;
 use Composer\IO\IOInterface;
@@ -137,6 +138,71 @@ FILEHEADER;
 \$baseDir = $appBaseDirCode;
 
 AUTOLOADFILEPATHS;
+
+        $package_autoload_key = $this->composer->getPackage()->getAutoload();
+        if (isset($package_autoload_key['wordpress'])) {
+            /** @see https://getcomposer.org/doc/04-schema.md#psr-4 */
+            $wordpress_autoload_key_dirs = array();
+            $wordpress_autoload_key = $package_autoload_key['wordpress'];
+            array_walk_recursive($wordpress_autoload_key, function ($v) use (&$wordpress_autoload_key_dirs) {
+                $wordpress_autoload_key_dirs[] = $v;
+            });
+
+            $wordpress_classmap_files = array();
+
+            $baseDir = getcwd(); // TODO: it'd be better to get this from $this->composer somehow.
+
+            foreach ($wordpress_autoload_key_dirs as $wordpress_classmap_key) {
+                $wordpress_classmap_dir = $baseDir . '/' . $wordpress_classmap_key;
+
+                if (!is_dir($wordpress_classmap_dir)) {
+                    continue;
+                }
+
+                $dirMap = ClassMapGenerator::createMap($wordpress_classmap_dir);
+
+                array_walk(
+                    $dirMap,
+                    function (&$filepath, $_class) use ($wordpress_classmap_dir, $wordpress_classmap_key) {
+                        $filepath = "\$baseDir . '"
+                                    . DIRECTORY_SEPARATOR
+                                    . $wordpress_classmap_key
+                                    . DIRECTORY_SEPARATOR
+                                    . ltrim(
+                                        str_replace(
+                                            $wordpress_classmap_dir,
+                                            '',
+                                            $filepath
+                                        ),
+                                        DIRECTORY_SEPARATOR
+                                    )
+                                    . "'";
+                    }
+                );
+
+                $wordpress_classmap_files = array_merge($wordpress_classmap_files, $dirMap);
+            }
+
+            $autoloadFileContents .= "\n\$wordpress_classmap = array(\n";
+            foreach ($wordpress_classmap_files as $class => $file) {
+                // Always use `/` in paths.
+                $file = str_replace(DIRECTORY_SEPARATOR, '/', $file);
+                $autoloadFileContents .= "   '{$class}' => {$file},\n";
+            }
+            $autoloadFileContents .= ");\n\n";
+
+            $autoloadFileContents .= <<<'WORDPRESS_CLASSMAP_AUTOLOAD'
+spl_autoload_register(
+    function ($classname) use ($wordpress_classmap) {
+        if (isset($wordpress_classmap[ $classname ])) {
+            require_once $wordpress_classmap[ $classname ];
+        }
+    }
+);
+unset($wordpress_classmap);
+
+WORDPRESS_CLASSMAP_AUTOLOAD;
+        }
 
         // Include the rules for the autoloader.
         $autoloadFileContents .= <<<AUTOLOAD
