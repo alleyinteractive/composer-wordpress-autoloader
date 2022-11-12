@@ -20,6 +20,7 @@
     },
     "require-dev": {
         "composer/composer": "*",
+        "nikic/php-parser": "^4.15",
         "phpunit/phpunit": "^9.5.8",
         "squizlabs/php_codesniffer": "^4.0"
     },
