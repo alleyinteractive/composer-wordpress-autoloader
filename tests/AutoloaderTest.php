@@ -152,7 +152,7 @@ class AutoloaderTest extends TestCase
                 }
             }
 
-            if ($ast_index > count($ast)) {
+            if ($ast_index >= $ast_entries_count) {
                 break;
             }
         }
