@@ -9,7 +9,7 @@ documented in this file.
 
 ### Changed
 
-- Dropped PHP 7.4 support, adding PHP 8.2 and 3 support explicitly with testing.
+- Dropped PHP 7.4 support, adding PHP 8.2 and 8.3 support explicitly with testing.
 - Added testing against Windows.
 
 ### Fixed
