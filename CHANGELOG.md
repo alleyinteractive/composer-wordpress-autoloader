@@ -5,6 +5,21 @@ documented in this file.
 
 ## Unreleased
 
+## v1.1.0
+
+### Changed
+
+- Dropped PHP 7.4 support, adding PHP 8.2 and 8.3 support explicitly with testing.
+- Added testing against Windows.
+
+### Fixed
+
+- Fixed issue with `wordpress-autoload.php` file not properly loading on Windows.
+
+## v1.0.0
+
+No changes, tagging a stable release.
+
 ## v0.8.0
 
 - Automatically translate the `vendor-dir` and set the autoloaded files relative to the root directory of the project.

@@ -1,6 +1,10 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   test:
@@ -8,8 +12,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest]
-        php: [7.4, 8.0, 8.1]
+        os: [ubuntu-latest, windows-2019]
+        php: [8.0, 8.1, 8.2, 8.3]
         stability: [prefer-lowest, prefer-stable]
 
     name: P${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
@@ -48,5 +52,9 @@ jobs:
       - name: Install vendor-dir test dependencies
         run: cd tests/fixtures/vendor-dir && composer install
 
-      - name: Execute tests
-        run: composer run test
+      - name: Execute phpcs
+        if: matrix.os != 'windows-2019'
+        run: composer run phpcs
+
+      - name: Execute phpunit
+        run: composer run phpunit

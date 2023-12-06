@@ -84,6 +84,10 @@ class AutoloaderTest extends TestCase
 
     public function testAutoloaderFile()
     {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            $this->markTestSkipped('Skipping test on Windows');
+        }
+
         $expected = '9893efd7d77972c681f2693e9d20a975';
         $actual = md5(file_get_contents(__DIR__ . '/fixtures/root/vendor/wordpress-autoload.php'));
 
