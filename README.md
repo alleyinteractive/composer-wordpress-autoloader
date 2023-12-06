@@ -3,7 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/alleyinteractive/composer-wordpress-autoloader.svg?style=flat-square)](https://packagist.org/packages/alleyinteractive/composer-wordpress-autoloader)
 [![Tests](https://github.com/alleyinteractive/composer-wordpress-autoloader/actions/workflows/tests.yml/badge.svg)](https://github.com/alleyinteractive/composer-wordpress-autoloader/actions/workflows/tests.yml)
 
-Autoload WordPress files configured via Composer that support the [Wordpress
+Autoload WordPress files configured via Composer that support the [WordPress
 Coding
 Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/php/)
 using
@@ -13,7 +13,7 @@ classes in your dependencies.
 
 ## Installation
 
-You can install the package via composer:
+You can install the package via Composer:
 
 ```bash
 composer require alleyinteractive/composer-wordpress-autoloader
