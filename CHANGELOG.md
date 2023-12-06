@@ -14,7 +14,7 @@ documented in this file.
 
 ### Fixed
 
-- Fixed issue with missing autoloaded file not found when using `vendor/autoload.php`.
+- Fixed issue with `wordpress-autoload.php` file not properly loading on Windows.
 
 ## v1.0.0
 
