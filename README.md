@@ -23,33 +23,6 @@ composer require alleyinteractive/composer-wordpress-autoloader
 
 ```json
 {
-  "autoload": {
-    "wordpress": {
-      "My_Plugin_Namespace\\": "src/",
-    }
-  },
-  "autoload-dev": {
-    "wordpress": {
-      "My_Plugin_Namespace\\Tests\\": "tests/",
-    }
-  }
-}
-```
-
-Once added, you can load `vendor/autoload.php` as normal and the autoloader will
-handle the rest. If that doesn't work, see [Automatically Injecting WordPress
-Autoloader](#automatically-injecting-wordpress-autoloader).
-
-### Use Inside Packages Published to Packagist
-
-Packages published to Packagist are required to be valid and have a
-`composer.json` that passed a `composer validate`. Composer does not consider
-`wordpress` to be a valid value inside of the `autoload` or `autoload-dev`
-property. To allow packages to register autoloading in a valid format, you can
-use the following format:
-
-```json
-{
   "extra": {
     "wordpress-autoloader": {
       "autoload": {
@@ -62,6 +35,10 @@ use the following format:
   }
 }
 ```
+
+Once added, you can load `vendor/autoload.php` as normal and the autoloader will
+handle the rest. If that doesn't work, see [Automatically Injecting WordPress
+Autoloader](#automatically-injecting-wordpress-autoloader).
 
 ### Automatically Injecting WordPress Autoloader
 
