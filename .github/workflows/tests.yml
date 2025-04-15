@@ -41,7 +41,7 @@ jobs:
         run: composer validate --strict
 
       - name: Execute phpcs
-        if: matrix.os != 'windows-2019'
+        if: matrix.os == 'ubuntu-latest'
         run: composer run phpcs
 
       - name: Execute phpunit
