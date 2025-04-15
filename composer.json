@@ -53,11 +53,17 @@
         "phpcbf": "phpcbf --standard=./phpcs.xml.dist .",
         "phpcs": "phpcs --standard=./phpcs.xml.dist .",
         "phpunit": "phpunit",
+        "clear-prepared-test": [
+            "cd tests/fixtures/root && rm -rf vendor || true",
+            "cd tests/fixtures/inject && rm -rf vendor || true",
+            "cd tests/fixtures/apcu && rm -rf vendor || true",
+            "cd tests/fixtures/vendor-dir && rm -rf vendor || true"
+        ],
         "prepare-test": [
-            "cd tests/fixtures/root && rm -rf vendor || true && composer install",
-            "cd tests/fixtures/inject && rm -rf vendor || true && composer install",
-            "cd tests/fixtures/apcu && rm -rf vendor || true && composer install",
-            "cd tests/fixtures/vendor-dir && rm -rf vendor || true && composer install"
+            "cd tests/fixtures/root && composer install",
+            "cd tests/fixtures/inject && composer install",
+            "cd tests/fixtures/apcu && composer install",
+            "cd tests/fixtures/vendor-dir && composer install"
         ],
         "test": [
             "@phpcs",
