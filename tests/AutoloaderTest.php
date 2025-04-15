@@ -2,6 +2,7 @@
 
 namespace ComposerWordPressAutoloader\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -28,9 +29,7 @@ class AutoloaderTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider autoloaders
-     */
+    #[DataProvider('autoloaders')]
     public function testAutoloaders(string $file, array $classes)
     {
         foreach ($classes as $class) {
@@ -47,7 +46,7 @@ class AutoloaderTest extends TestCase
     /**
      * Data provider for all the various autoloader fixtures.
      */
-    public function autoloaders()
+    public static function autoloaders(): array
     {
         return [
             [
