@@ -10,6 +10,7 @@ documented in this file.
 ### Changed
 
 - Dropped PHP 8.0 support, added testing for 8.4. New minimum PHP version is 8.1.
+- Dropped support for Composer 1.
 
 ## v1.1.0
 
