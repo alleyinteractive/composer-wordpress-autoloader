@@ -35,6 +35,7 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "alleyinteractive/composer-wordpress-autoloader": true
-        }
+        },
+        "autoloader-suffix": "Inject"
     }
 }

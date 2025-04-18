@@ -51,6 +51,7 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "alleyinteractive/composer-wordpress-autoloader": true
         },
+        "autoloader-suffix": "VendorDir",
         "vendor-dir": "client-mu-plugins/vendor"
     }
 }

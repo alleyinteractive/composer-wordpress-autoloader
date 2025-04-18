@@ -10,10 +10,10 @@ jobs:
   test:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-2019]
-        php: [8.0, 8.1, 8.2, 8.3]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        php: [8.1, 8.2, 8.3, 8.4]
         stability: [prefer-lowest, prefer-stable]
 
     name: P${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
@@ -40,21 +40,30 @@ jobs:
       - name: Composer Validate
         run: composer validate --strict
 
-      - name: Install root test dependencies
-        run: cd tests/fixtures/root && composer install
-
-      - name: Install inject test dependencies
-        run: cd tests/fixtures/inject && composer install
-
-      - name: Install APCu test dependencies
-        run: cd tests/fixtures/apcu && composer install
-
-      - name: Install vendor-dir test dependencies
-        run: cd tests/fixtures/vendor-dir && composer install
-
       - name: Execute phpcs
-        if: matrix.os != 'windows-2019'
+        if: matrix.os == 'ubuntu-latest'
         run: composer run phpcs
 
       - name: Execute phpunit
         run: composer run phpunit
+
+  # This required job ensures that all PR checks have passed before merging.
+  all-pr-checks-passed:
+    name: All PR checks passed
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check job statuses
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]]; then
+            echo "One or more jobs failed"
+            exit 1
+          elif [[ "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "One or more jobs were cancelled"
+            exit 1
+          else
+            echo "All jobs passed or were skipped"
+            exit 0
+          fi
