@@ -5,7 +5,6 @@
   bootstrap="vendor/autoload.php"
   backupGlobals="false"
   colors="true"
-
   failOnDeprecation="true"
   failOnNotice="true"
   failOnWarning="true"
