@@ -9,7 +9,7 @@ documented in this file.
 
 ### Changed
 
-- Upgrade to PHP 8.2.
+- Upgrade minimum PHP version to PHP 8.2.
 
 ## v1.2.0
 
