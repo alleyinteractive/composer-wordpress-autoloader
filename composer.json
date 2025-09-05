@@ -19,7 +19,7 @@
         "alleyinteractive/wordpress-autoloader": "^1.1.1"
     },
     "require-dev": {
-        "composer/composer": "^2.0",
+        "composer/composer": "^2.4",
         "phpunit/phpunit": "^11.0",
         "squizlabs/php_codesniffer": "^4.0"
     },
@@ -60,10 +60,10 @@
             "cd tests/fixtures/vendor-dir && rm -rf vendor || true"
         ],
         "prepare-test": [
-            "cd tests/fixtures/root && composer install",
-            "cd tests/fixtures/inject && composer install",
-            "cd tests/fixtures/apcu && composer install",
-            "cd tests/fixtures/vendor-dir && composer install"
+            "cd tests/fixtures/root && composer update",
+            "cd tests/fixtures/inject && composer update",
+            "cd tests/fixtures/apcu && composer update",
+            "cd tests/fixtures/vendor-dir && composer update"
         ],
         "test": [
             "@phpcs",
