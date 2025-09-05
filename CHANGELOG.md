@@ -5,6 +5,12 @@ documented in this file.
 
 ## Unreleased
 
+## v1.3.0
+
+### Changed
+
+- Upgrade to PHP 8.2.
+
 ## v1.2.0
 
 ### Changed

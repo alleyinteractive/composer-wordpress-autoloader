@@ -8,7 +8,6 @@
   failOnDeprecation="true"
   failOnNotice="true"
   failOnWarning="true"
-  failOnPhpunitDeprecation="true"
 >
   <testsuites>
     <testsuite name="alleyinteractive/composer-wordpress-autoloader">
