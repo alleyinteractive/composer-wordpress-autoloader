@@ -18,6 +18,7 @@ documented in this file.
 
 - Packages that are not installed (such as metapackages) are skipped when reading `extra.wordpress-autoloader` rules.
 - Misconfigured `extra.wordpress-autoloader` entries are ignored instead of causing errors.
+- Injecting the autoloader no longer reports an error when `vendor/autoload.php` is already up to date, and the inject messages' typos are fixed.
 - `composer clear-prepared-test` now clears the `vendor-dir` fixture's install.
 
 ## v1.3.0
