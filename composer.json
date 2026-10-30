@@ -20,6 +20,7 @@
     },
     "require-dev": {
         "composer/composer": "^2.4",
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^12.0",
         "squizlabs/php_codesniffer": "^4.0"
     },
@@ -52,6 +53,7 @@
         "lint:fix": "@phpcbf",
         "phpcbf": "phpcbf --standard=./phpcs.xml.dist .",
         "phpcs": "phpcs --standard=./phpcs.xml.dist .",
+        "phpstan": "phpstan analyse --memory-limit=1G",
         "phpunit": "phpunit",
         "clear-prepared-test": [
             "cd tests/fixtures/root && rm -rf vendor || true",
@@ -67,6 +69,7 @@
         ],
         "test": [
             "@phpcs",
+            "@phpstan",
             "@phpunit"
         ]
     }

@@ -47,6 +47,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: composer run phpcs
 
+      - name: Execute phpstan
+        if: matrix.os == 'ubuntu-latest'
+        run: composer run phpstan
+
       - name: Execute phpunit
         run: composer run phpunit
 

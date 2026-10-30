@@ -6,6 +6,8 @@
  * Used to automatically load the file when vendor/autoload.php is loaded.
  */
 
+declare(strict_types=1);
+
 $autoloadFiles = [
     // Attempt to translate the /vendor/ in the directory path to the vendor directory.
     preg_replace('#/vendor/.*$#', '/vendor/wordpress-autoload.php', __DIR__),
