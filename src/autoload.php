@@ -8,6 +8,12 @@
 
 declare(strict_types=1);
 
+// Composer loads plugin autoload files into its own process. Loading the project's autoloader there
+// lets project dependencies such as symfony/console replace the copies bundled with Composer.
+if (class_exists(\Composer\Console\Application::class, false)) {
+    return;
+}
+
 $autoloadFiles = [
     // Attempt to translate the /vendor/ in the directory path to the vendor directory.
     preg_replace('#/vendor/.*$#', '/vendor/wordpress-autoload.php', __DIR__),
