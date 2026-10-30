@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ComposerWordPressAutoloader\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -29,8 +31,11 @@ class AutoloaderTest extends TestCase
         }
     }
 
+    /**
+     * @param array<class-string> $classes
+     */
     #[DataProvider('autoloaders')]
-    public function testAutoloaders(string $file, array $classes)
+    public function testAutoloaders(string $file, array $classes): void
     {
         foreach ($classes as $class) {
             $this->assertFalse(class_exists($class), "Class {$class} should not be found");
@@ -45,6 +50,8 @@ class AutoloaderTest extends TestCase
 
     /**
      * Data provider for all the various autoloader fixtures.
+     *
+     * @return array<array{string, array<class-string>}>
      */
     public static function autoloaders(): array
     {
@@ -81,7 +88,7 @@ class AutoloaderTest extends TestCase
         ];
     }
 
-    public function testAutoloaderFile()
+    public function testAutoloaderFile(): void
     {
         if (DIRECTORY_SEPARATOR === '\\') {
             $this->markTestSkipped('Skipping test on Windows');
@@ -93,7 +100,7 @@ class AutoloaderTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testApcuLoader()
+    public function testApcuLoader(): void
     {
         $this->assertStringContainsString(
             'setApcuPrefix(',
