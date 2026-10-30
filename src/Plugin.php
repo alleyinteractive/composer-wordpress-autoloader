@@ -116,17 +116,17 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
         // Inject the autoloader into the existing autoloader.
         if ($injecting) {
-            if (
-                $this->filesystem->filePutContentsIfModified(
-                    $this->getVendorDir() . '/autoload.php',
-                    $this->getInjectedAutoloaderFileContents($this->getAutoloaderFilePath()),
-                )
-            ) {
+            $written = $this->filesystem->filePutContentsIfModified(
+                $this->getVendorDir() . '/autoload.php',
+                $this->getInjectedAutoloaderFileContents($this->getAutoloaderFilePath()),
+            );
+
+            if ($written === false) {
+                $this->io->writeError('<error>⚠️ Error injecting WordPress Autoloader.</error>');
+            } elseif ($written > 0) {
                 $this->io->write(
-                    "<info>{$partyEmoji} WordPress autoloader genearted and injected into vendor/autoload.php.</info>"
+                    "<info>{$partyEmoji} WordPress autoloader generated and injected into vendor/autoload.php.</info>"
                 );
-            } else {
-                $this->io->write('<error>⚠️ Error injecting Wordpress Autoloader.</error>');
             }
         }
     }
