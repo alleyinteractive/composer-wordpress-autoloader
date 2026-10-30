@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ComposerWordPressAutoloader\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -98,6 +99,24 @@ class AutoloaderTest extends TestCase
         $actual = md5(file_get_contents(__DIR__ . '/fixtures/root/vendor/wordpress-autoload.php'));
 
         $this->assertEquals($expected, $actual);
+    }
+
+    #[RunInSeparateProcess]
+    public function testAutoloadFileLoadsProjectAutoloader(): void
+    {
+        require __DIR__ . '/fixtures/root/vendor/alleyinteractive/composer-wordpress-autoloader/src/autoload.php';
+
+        $this->assertTrue(class_exists(\ComposerWordPressAutoloaderTests\Example_Class::class));
+    }
+
+    #[RunInSeparateProcess]
+    public function testAutoloadFileSkipsProjectAutoloaderInsideComposer(): void
+    {
+        $this->assertTrue(class_exists(\Composer\Console\Application::class));
+
+        require __DIR__ . '/fixtures/root/vendor/alleyinteractive/composer-wordpress-autoloader/src/autoload.php';
+
+        $this->assertFalse(class_exists(\ComposerWordPressAutoloaderTests\Example_Class::class));
     }
 
     public function testApcuLoader(): void
