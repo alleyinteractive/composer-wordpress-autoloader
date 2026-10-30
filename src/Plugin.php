@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ComposerWordPressAutoloader;
 
 use Composer\Composer;
@@ -19,13 +21,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     /**
      * Apply plugin modifications to Composer
-     *
-     * @param Composer    $composer
-     * @param IOInterface $io
-     *
-     * @return void
      */
-    public function activate(Composer $composer, IOInterface $io)
+    public function activate(Composer $composer, IOInterface $io): void
     {
         $this->composer = $composer;
         $this->io = $io;
@@ -38,13 +35,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * This will be called when a plugin is deactivated before being
      * uninstalled, but also before it gets upgraded to a new version
      * so the old one can be deactivated and the new one activated.
-     *
-     * @param Composer    $composer
-     * @param IOInterface $io
-     *
-     * @return void
      */
-    public function deactivate(Composer $composer, IOInterface $io)
+    public function deactivate(Composer $composer, IOInterface $io): void
     {
     }
 
@@ -52,13 +44,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * Prepare the plugin to be uninstalled
      *
      * This will be called after deactivate.
-     *
-     * @param Composer    $composer
-     * @param IOInterface $io
-     *
-     * @return void
      */
-    public function uninstall(Composer $composer, IOInterface $io)
+    public function uninstall(Composer $composer, IOInterface $io): void
     {
         if ($this->filesystem->remove($this->getAutoloaderFilePath())) {
             $this->io->write('<info>Removed WordPress autoloader.</info>');
@@ -70,7 +57,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @return array<string, string>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'post-autoload-dump' => 'generateAutoloaderFile',
@@ -79,13 +66,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     /**
      * Generate the autoloader file.
-     *
-     * @param Event $event
-     * @return void
      */
     public function generateAutoloaderFile(Event $event): void
     {
-        $this->filesystem->ensureDirectoryExists($this->composer->getConfig()->get('vendor-dir'));
+        $this->filesystem->ensureDirectoryExists($this->getVendorDir());
 
         $this->generator = new AutoloadGenerator(
             $this->composer,
@@ -93,16 +77,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         );
 
         $this->generator->setApcuMode(
-            $this->composer->getConfig()->get('apcu-autoloader')
+            (bool) $this->composer->getConfig()->get('apcu-autoloader')
         );
 
-        // Merge default configuration with the one provided in the composer.json file.
-        $extra = array_merge(
-            [
-                'inject' => false,
-            ],
-            $this->composer->getPackage()->getExtra()['wordpress-autoloader'] ?? [],
-        );
+        $extra = $this->composer->getPackage()->getExtra()['wordpress-autoloader'] ?? [];
 
         /**
          * Determine if we should inject our autoloader into the
@@ -112,7 +90,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
          * automatically be loaded. However, it is still possible to inject it
          * for circumstances where it is needed such as when dealing with symlinks.
          */
-        $injecting = $extra['inject'] ?? false;
+        $injecting = is_array($extra) && !empty($extra['inject']);
 
         $autoloaderFile = $this->generator->generate($injecting, $event->isDevMode());
 
@@ -140,7 +118,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if ($injecting) {
             if (
                 $this->filesystem->filePutContentsIfModified(
-                    $this->composer->getConfig()->get('vendor-dir') . '/autoload.php',
+                    $this->getVendorDir() . '/autoload.php',
                     $this->getInjectedAutoloaderFileContents($this->getAutoloaderFilePath()),
                 )
             ) {
@@ -155,25 +133,39 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     /**
      * Retrieve the file path for the autoloader file.
-     *
-     * @return string
      */
     protected function getAutoloaderFilePath(): string
     {
+        return $this->getVendorDir() . '/wordpress-autoload.php';
+    }
+
+    /**
+     * Retrieve the Composer vendor directory.
+     */
+    protected function getVendorDir(): string
+    {
         $vendorDir = $this->composer->getConfig()->get('vendor-dir');
-        return "{$vendorDir}/wordpress-autoload.php";
+
+        if (!is_string($vendorDir)) {
+            throw new RuntimeException('Unable to determine the Composer vendor directory.');
+        }
+
+        return $vendorDir;
     }
 
     /**
      * Generate the injected autoloader file.
      *
      * @param string $autoloaderFileName The path to the WordPress autoloader file.
-     * @return string
      */
     protected function getInjectedAutoloaderFileContents(string $autoloaderFileName): string
     {
         $filename = basename($autoloaderFileName);
-        $autoloader = file_get_contents($this->composer->getConfig()->get('vendor-dir') . '/autoload.php');
+        $autoloader = file_get_contents($this->getVendorDir() . '/autoload.php');
+
+        if ($autoloader === false) {
+            throw new RuntimeException('Unable to read vendor/autoload.php.');
+        }
 
         $contents = preg_replace_callback(
             '/^return (.*);$/m',
@@ -200,7 +192,7 @@ AUTOLOADER;
             $count,
         );
 
-        if (!$count) {
+        if ($contents === null || !$count) {
             throw new RuntimeException('Error finding proper place to inject autoloader.');
         }
 

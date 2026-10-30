@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ComposerWordPressAutoloader;
 
 use Alley_Interactive\Autoloader\Autoloader;
@@ -10,8 +12,6 @@ class AutoloadFactory
 
     /**
      * Set the APCu prefix to use.
-     *
-     * @param string|null $apcuPrefix|
      */
     public static function setApcuPrefix(?string $apcuPrefix): void
     {
@@ -24,23 +24,20 @@ class AutoloadFactory
      * @param array<string, array<string>> $rules Array of rules.
      * @return array<Autoloader>
      */
-    public static function generateFromRules(array $rules)
+    public static function generateFromRules(array $rules): array
     {
         $loaders = [];
 
         foreach ($rules as $namespace => $paths) {
-            $loaders = array_merge(
-                $loaders,
-                array_map(function ($path) use ($namespace) {
-                    $loader = new Autoloader($namespace, $path);
+            foreach ($paths as $path) {
+                $loader = new Autoloader($namespace, $path);
 
-                    if (static::$apcuPrefix) {
-                        $loader->set_apcu_prefix(static::$apcuPrefix);
-                    }
+                if (static::$apcuPrefix) {
+                    $loader->set_apcu_prefix(static::$apcuPrefix);
+                }
 
-                    return $loader;
-                }, $paths),
-            );
+                $loaders[] = $loader;
+            }
         }
 
         return $loaders;
@@ -49,10 +46,9 @@ class AutoloadFactory
     /**
      * Register autoloaders from rules.
      *
-     * @param array<string, string> $rules Array of rules.
-     * @return void
+     * @param array<string, array<string>> $rules Array of rules.
      */
-    public static function registerFromRules(array $rules)
+    public static function registerFromRules(array $rules): void
     {
         foreach (static::generateFromRules($rules) as $autoloader) {
             $autoloader->register();
