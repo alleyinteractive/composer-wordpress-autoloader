@@ -5,6 +5,17 @@ documented in this file.
 
 ## Unreleased
 
+## v1.4.0
+
+### Changed
+
+- Upgrade minimum PHP version to PHP 8.3, adding testing for PHP 8.5.
+- Upgrade to PHPUnit 12.
+
+### Fixed
+
+- `composer clear-prepared-test` now clears the `vendor-dir` fixture's install.
+
 ## v1.3.0
 
 ### Changed

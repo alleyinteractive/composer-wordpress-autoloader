@@ -14,13 +14,13 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "composer-plugin-api": "^2.0",
         "alleyinteractive/wordpress-autoloader": "^1.1.1"
     },
     "require-dev": {
         "composer/composer": "^2.4",
-        "phpunit/phpunit": "^11.0",
+        "phpunit/phpunit": "^12.0",
         "squizlabs/php_codesniffer": "^4.0"
     },
     "minimum-stability": "dev",
@@ -57,7 +57,7 @@
             "cd tests/fixtures/root && rm -rf vendor || true",
             "cd tests/fixtures/inject && rm -rf vendor || true",
             "cd tests/fixtures/apcu && rm -rf vendor || true",
-            "cd tests/fixtures/vendor-dir && rm -rf vendor || true"
+            "cd tests/fixtures/vendor-dir && rm -rf client-mu-plugins/vendor || true"
         ],
         "prepare-test": [
             "cd tests/fixtures/root && composer update",
