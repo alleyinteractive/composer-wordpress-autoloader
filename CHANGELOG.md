@@ -11,9 +11,13 @@ documented in this file.
 
 - Upgrade minimum PHP version to PHP 8.3, adding testing for PHP 8.5.
 - Upgrade to PHPUnit 12.
+- Add PHPStan at level max, with strict types and full type coverage across the plugin.
+- `AutoloadGenerator::parseAutoloads()` was renamed to `parseWordPressAutoloads()` so it no longer overrides Composer's method with an incompatible return shape.
 
 ### Fixed
 
+- Packages that are not installed (such as metapackages) are skipped when reading `extra.wordpress-autoloader` rules.
+- Misconfigured `extra.wordpress-autoloader` entries are ignored instead of causing errors.
 - `composer clear-prepared-test` now clears the `vendor-dir` fixture's install.
 
 ## v1.3.0

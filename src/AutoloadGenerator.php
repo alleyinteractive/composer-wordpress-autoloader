@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ComposerWordPressAutoloader;
 
 use Composer\Composer;
@@ -8,6 +10,8 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Package\RootPackageInterface;
 use Composer\Util\Filesystem;
+use Composer\Util\Platform;
+use RuntimeException;
 
 /**
  * Composer Autoload Generator
@@ -19,12 +23,6 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
     protected bool $apcu = false;
     protected ?string $apcuPrefix = null;
 
-    /**
-     * Constructor.
-     *
-     * @param Composer $composer
-     * @param IOInterface $io
-     */
     public function __construct(Composer $composer, IOInterface $io)
     {
         parent::__construct($composer->getEventDispatcher(), $io);
@@ -32,30 +30,22 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
         $this->composer = $composer;
     }
 
-    /**
-     * @param bool $devMode
-     * @return void
-     */
-    public function setDevMode($devMode = true)
+    public function setDevMode(bool $devMode = true): void
     {
         parent::setDevMode($devMode);
 
-        $this->devMode = (bool) $devMode;
+        $this->devMode = $devMode;
     }
 
     /**
      * Whether generated autoloader considers APCu caching.
-     *
-     * @param bool        $apcu
-     * @param string|null $apcuPrefix
-     * @return void
      */
-    public function setApcuMode(bool $apcu, ?string $apcuPrefix = null)
+    public function setApcuMode(bool $apcu, ?string $apcuPrefix = null): void
     {
         parent::setApcu($apcu, $apcuPrefix);
 
         $this->apcu = $apcu;
-        $this->apcuPrefix = $apcuPrefix !== null ? $apcuPrefix : $apcuPrefix;
+        $this->apcuPrefix = $apcuPrefix;
     }
 
     /**
@@ -63,13 +53,18 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
      *
      * @param boolean $beingInjected Flag if the autoload file is being injected.
      * @param boolean $isDevMode Flag if dev dependencies are being included.
-     * @return string
      */
     public function generate(bool $beingInjected, bool $isDevMode = true): string
     {
+        $vendorDir = $this->composer->getConfig()->get('vendor-dir');
+
+        if (!is_string($vendorDir)) {
+            throw new RuntimeException('Unable to determine the Composer vendor directory.');
+        }
+
         $filesystem = new Filesystem();
-        $basePath = $filesystem->normalizePath(realpath(realpath(getcwd())));
-        $vendorPath = $filesystem->normalizePath(realpath(realpath($this->composer->getConfig()->get('vendor-dir'))));
+        $basePath = $filesystem->normalizePath($this->realpath(Platform::getCwd()));
+        $vendorPath = $filesystem->normalizePath($this->realpath($vendorDir));
 
         $vendorPathCode = '__DIR__';
 
@@ -79,10 +74,11 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
         $this->setDevMode($isDevMode);
 
         // Collect all the rules from all the packages.
-        $rules = array_merge_recursive(
-            $this->collectAutoloaderRules(),
-            $this->collectExtraAutoloaderRules(),
-        );
+        $rules = $this->collectAutoloaderRules();
+
+        foreach ($this->collectExtraAutoloaderRules() as $namespace => $paths) {
+            $rules[$namespace] = array_merge($rules[$namespace] ?? [], $paths);
+        }
 
         foreach ($rules as $namespace => $paths) {
             // Convert the paths to be relative to the vendor/wordpress-autoload.php file.
@@ -95,9 +91,25 @@ class AutoloadGenerator extends ComposerAutoloadGenerator
     }
 
     /**
+     * Resolve a path the same way Composer's own autoload generator does.
+     */
+    protected function realpath(string $path): string
+    {
+        // Composer calls realpath() twice to work around https://bugs.php.net/bug.php?id=72738 on Windows.
+        $resolved = realpath($path);
+        $resolved = $resolved !== false ? realpath($resolved) : false;
+
+        if ($resolved === false) {
+            throw new RuntimeException("Unable to resolve path: {$path}");
+        }
+
+        return $resolved;
+    }
+
+    /**
      * Create the autoloader file contents to write to vendor/wordpress-autoload.php.
      *
-     * @param array $rules The rules to use to generate the autoloader.
+     * @param array<string, array<string>> $rules The rules to use to generate the autoloader.
      * @param boolean $beingInjected Flag if the autoload file is being injected.
      * @param string $vendorPathCode Vendor path code.
      * @param string $appBaseDirCode App base dir code.
@@ -166,69 +178,62 @@ AUTOLOAD;
      * Collect the autoloader rules from 'autoload' and 'autoload-dev' to
      * generate rules for.
      *
-     * @return array<string, string>
+     * @return array<string, array<string>>
      */
     protected function collectAutoloaderRules(): array
     {
-        return $this->parseAutoloads(
-            $this->buildPackageMap(
-                $this->composer->getInstallationManager(),
-                $this->composer->getPackage(),
-                $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages(),
-            ),
+        return $this->parseWordPressAutoloads(
+            $this->buildRootPackageMap(),
             $this->composer->getPackage(),
             !$this->devMode,
-        )['wordpress'] ?? [];
+        )['wordpress'];
     }
 
     /**
      * Collect the autoloader rules registered via 'extra' to generate for.
      *
-     * @return array<string, string>
+     * @return array<string, array<string>>
      */
     protected function collectExtraAutoloaderRules(): array
     {
         return $this->parseExtraAutoloads(
-            $this->buildPackageMap(
-                $this->composer->getInstallationManager(),
-                $this->composer->getPackage(),
-                $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages(),
-            ),
+            $this->buildRootPackageMap(),
             $this->composer->getPackage(),
             !$this->devMode,
-        )['wordpress'] ?? [];
+        )['wordpress'];
     }
 
     /**
-     * Compiles an ordered list of namespace => path mappings
+     * Build the package map for the root package and its installed dependencies.
      *
-     * @param array $packageMap
-     * @param PackageInterface $rootPackage
-     * @param boolean $filteredDevPackages
-     * @return array<string, array<string>>
+     * @return non-empty-array<int, array{0: PackageInterface, 1: string|null}>
      */
-    public function parseAutoloads(array $packageMap, PackageInterface $rootPackage, $filteredDevPackages = false)
+    protected function buildRootPackageMap(): array
     {
-        $rootPackageMap = array_shift($packageMap);
+        return $this->buildPackageMap(
+            $this->composer->getInstallationManager(),
+            $this->composer->getPackage(),
+            $this->composer->getRepositoryManager()->getLocalRepository()->getCanonicalPackages(),
+        );
+    }
 
-        // Mirroring existing logic in the Composer AutoloadGenerator.
-        if (is_array($filteredDevPackages)) {
-            $packageMap = array_filter($packageMap, function ($item) use ($filteredDevPackages) {
-                return !in_array($item[0]->getName(), $filteredDevPackages, true);
-            });
-        } elseif ($filteredDevPackages) {
-            $packageMap = $this->filterPackageMap($packageMap, $rootPackage);
-        }
-
-        if ($filteredDevPackages) {
-            $packageMap = $this->filterPackageMap($packageMap, $rootPackage);
-        }
-
-        $sortedPackageMap = $this->sortPackageMap($packageMap);
-        $sortedPackageMap[] = $rootPackageMap;
-        array_unshift($packageMap, $rootPackageMap);
-
-        $wordpress = $this->parseAutoloadsType($sortedPackageMap, 'wordpress', $rootPackage);
+    /**
+     * Compiles an ordered list of namespace => path mappings of 'wordpress' autoloads.
+     *
+     * @param array<int, array{0: PackageInterface, 1: string|null}> $packageMap
+     * @param bool|array<string> $filteredDevPackages
+     * @return array{wordpress: array<string, array<string>>}
+     */
+    public function parseWordPressAutoloads(
+        array $packageMap,
+        RootPackageInterface $rootPackage,
+        bool|array $filteredDevPackages = false,
+    ): array {
+        $wordpress = $this->normalizeRules($this->parseAutoloadsType(
+            $this->sortRootPackageMap($packageMap, $rootPackage, $filteredDevPackages),
+            'wordpress',
+            $rootPackage,
+        ));
 
         krsort($wordpress);
 
@@ -240,70 +245,83 @@ AUTOLOAD;
     /**
      * Compiles an ordered list of namespace => path mappings of autoloads defined in the 'extra' part of a package.
      *
-     * @param array $packageMap
-     * @param PackageInterface $rootPackage
-     * @param boolean $filteredDevPackages
-     * @return array
+     * @param array<int, array{0: PackageInterface, 1: string|null}> $packageMap
+     * @param bool|array<string> $filteredDevPackages
+     * @return array{wordpress: array<string, array<string>>}
      */
-    public function parseExtraAutoloads(array $packageMap, PackageInterface $rootPackage, $filteredDevPackages = false)
-    {
-        $rootPackageMap = array_shift($packageMap);
-
-        // Mirroring existing logic in the Composer AutoloadGenerator.
-        if (is_array($filteredDevPackages)) {
-            $packageMap = array_filter($packageMap, function ($item) use ($filteredDevPackages) {
-                return !in_array($item[0]->getName(), $filteredDevPackages, true);
-            });
-        } elseif ($filteredDevPackages) {
-            $packageMap = $this->filterPackageMap($packageMap, $rootPackage);
-        }
-
-        if ($filteredDevPackages) {
-            $packageMap = $this->filterPackageMap($packageMap, $rootPackage);
-        }
-
-        $sortedPackageMap = $this->sortPackageMap($packageMap);
-        $sortedPackageMap[] = $rootPackageMap;
-        array_unshift($packageMap, $rootPackageMap);
-
+    public function parseExtraAutoloads(
+        array $packageMap,
+        RootPackageInterface $rootPackage,
+        bool|array $filteredDevPackages = false,
+    ): array {
         return [
-          'wordpress' => $this->parseExtraAutoloadsType($sortedPackageMap, 'wordpress', $rootPackage),
+            'wordpress' => $this->parseExtraAutoloadsType(
+                $this->sortRootPackageMap($packageMap, $rootPackage, $filteredDevPackages),
+                $rootPackage,
+            ),
         ];
     }
 
     /**
-     * A modified port of the {@see AutoloadGenerator::parseAutoloadsType()} method from Composer.
+     * Filter out dev packages and sort the package map so dependencies come first and the root package is last.
+     *
+     * Mirrors {@see ComposerAutoloadGenerator::parseAutoloads()}.
+     *
+     * @param array<int, array{0: PackageInterface, 1: string|null}> $packageMap
+     * @param bool|array<string> $filteredDevPackages
+     * @return array<int, array{0: PackageInterface, 1: string|null}>
+     */
+    protected function sortRootPackageMap(
+        array $packageMap,
+        RootPackageInterface $rootPackage,
+        bool|array $filteredDevPackages,
+    ): array {
+        $rootPackageMap = array_shift($packageMap);
+
+        if (is_array($filteredDevPackages)) {
+            $packageMap = array_filter(
+                $packageMap,
+                fn ($item) => !in_array($item[0]->getName(), $filteredDevPackages, true),
+            );
+        } elseif ($filteredDevPackages) {
+            $packageMap = $this->filterPackageMap($packageMap, $rootPackage);
+        }
+
+        $sortedPackageMap = $this->sortPackageMap($packageMap);
+
+        if ($rootPackageMap !== null) {
+            $sortedPackageMap[] = $rootPackageMap;
+        }
+
+        return $sortedPackageMap;
+    }
+
+    /**
+     * A modified port of the {@see ComposerAutoloadGenerator::parseAutoloadsType()} method from Composer.
      *
      * Imports autoload rules from a package's extra path.
      *
-     * @param array<int, array{0: PackageInterface, 1: string}> $packageMap
-     * @param string $type one of: 'wordpress'
-     * @return array<int, string>|array<string, array<string>>|array<string, string>
+     * @param array<int, array{0: PackageInterface, 1: string|null}> $packageMap
+     * @return array<string, array<string>>
      */
-    protected function parseExtraAutoloadsType(array $packageMap, $type, RootPackageInterface $rootPackage)
+    protected function parseExtraAutoloadsType(array $packageMap, RootPackageInterface $rootPackage): array
     {
         $autoloads = [];
 
-        foreach ($packageMap as $item) {
-            [$package, $installPath] = $item;
-            $autoload = [
-              'wordpress' => $package->getExtra()['wordpress-autoloader']['autoload'] ?? [],
-            ];
+        foreach ($packageMap as [$package, $installPath]) {
+            // Packages that are not installed cannot autoload anything.
+            if (null === $installPath) {
+                continue;
+            }
+
+            $rules = $this->getExtraAutoloadRules($package, 'autoload');
 
             // Include autoload dev if we're in dev mode and this is the root package.
             // Non-root package dev dependencies are not loaded.
             if ($this->devMode && $package === $rootPackage) {
-                $autoload = array_merge_recursive(
-                    $autoload,
-                    [
-                        'wordpress' => $package->getExtra()['wordpress-autoloader']['autoload-dev'] ?? [],
-                    ],
-                );
-            }
-
-            // Skip misconfigured packages.
-            if (!isset($autoload[$type]) || !is_array($autoload[$type])) {
-                continue;
+                foreach ($this->getExtraAutoloadRules($package, 'autoload-dev') as $namespace => $paths) {
+                    $rules[$namespace] = array_merge($rules[$namespace] ?? [], $paths);
+                }
             }
 
             if (null !== $package->getTargetDir() && $package !== $rootPackage) {
@@ -314,8 +332,8 @@ AUTOLOAD;
                 $installPath = str_replace($rootPackage->getTargetDir(), '', $installPath);
             }
 
-            foreach ($autoload[$type] as $namespace => $paths) {
-                foreach ((array) $paths as $path) {
+            foreach ($rules as $namespace => $paths) {
+                foreach ($paths as $path) {
                     $relativePath = empty($installPath) ? (empty($path) ? '.' : $path) : $installPath . '/' . $path;
                     $autoloads[$namespace][] = $relativePath;
                 }
@@ -323,5 +341,44 @@ AUTOLOAD;
         }
 
         return $autoloads;
+    }
+
+    /**
+     * Read the namespace => path rules from a package's 'extra.wordpress-autoloader' section.
+     *
+     * @param 'autoload'|'autoload-dev' $key
+     * @return array<string, array<string>>
+     */
+    protected function getExtraAutoloadRules(PackageInterface $package, string $key): array
+    {
+        $config = $package->getExtra()['wordpress-autoloader'] ?? [];
+
+        return $this->normalizeRules(is_array($config) ? ($config[$key] ?? []) : []);
+    }
+
+    /**
+     * Normalize a namespace => path(s) map, dropping misconfigured entries.
+     *
+     * @return array<string, array<string>>
+     */
+    protected function normalizeRules(mixed $rules): array
+    {
+        if (!is_array($rules)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($rules as $namespace => $paths) {
+            if (is_string($paths)) {
+                $paths = [$paths];
+            }
+
+            if (is_string($namespace) && is_array($paths)) {
+                $normalized[$namespace] = array_values(array_filter($paths, 'is_string'));
+            }
+        }
+
+        return $normalized;
     }
 }
