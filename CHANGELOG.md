@@ -5,6 +5,10 @@ documented in this file.
 
 ## Unreleased
 
+## v1.4.1
+
+No changes, retagging release. See [v1.4.0](#v140).
+
 ## v1.4.0
 
 ### Changed
