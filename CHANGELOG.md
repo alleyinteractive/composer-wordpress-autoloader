@@ -9,9 +9,9 @@ documented in this file.
 
 ### Fixed
 
-## v1.4.0
-
 - Stop loading the project's autoloader inside the Composer process, which let project dependencies such as `symfony/console` replace Composer's own copies and caused fatal errors with other Composer plugins like Pest ([#23](https://github.com/alleyinteractive/composer-wordpress-autoloader/issues/23)).
+
+## v1.4.0
 
 ### Changed
 
