@@ -7,9 +7,11 @@ documented in this file.
 
 ## v1.4.1
 
-No changes, retagging release. See [v1.4.0](#v140).
+### Fixed
 
 ## v1.4.0
+
+- Stop loading the project's autoloader inside the Composer process, which let project dependencies such as `symfony/console` replace Composer's own copies and caused fatal errors with other Composer plugins like Pest ([#23](https://github.com/alleyinteractive/composer-wordpress-autoloader/issues/23)).
 
 ### Changed
 
@@ -20,7 +22,6 @@ No changes, retagging release. See [v1.4.0](#v140).
 
 ### Fixed
 
-- Stop loading the project's autoloader inside the Composer process, which let project dependencies such as `symfony/console` replace Composer's own copies and caused fatal errors with other Composer plugins like Pest ([#23](https://github.com/alleyinteractive/composer-wordpress-autoloader/issues/23)).
 - Packages that are not installed (such as metapackages) are skipped when reading `extra.wordpress-autoloader` rules.
 - Misconfigured `extra.wordpress-autoloader` entries are ignored instead of causing errors.
 - Injecting the autoloader no longer reports an error when `vendor/autoload.php` is already up to date, and the inject messages' typos are fixed.
